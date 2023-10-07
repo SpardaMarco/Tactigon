@@ -1,0 +1,4 @@
+% Game Loop
+
+play :-
+    !.
