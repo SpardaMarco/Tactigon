@@ -25,3 +25,8 @@ get_option(MinValue, MaxValue, Option):-
     read_number(Option),
     between(MinValue, MaxValue, Option), 
     !.
+
+% abs(+X,-Y)
+% Unifies Y with the absolute value of X
+abs(X,X) :- X >= 0, !.
+abs(X,Y) :- Y is -X.
