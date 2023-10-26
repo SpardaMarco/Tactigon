@@ -30,3 +30,14 @@ get_option(MinValue, MaxValue, Option):-
 % Unifies Y with the absolute value of X
 abs(X,X) :- X >= 0, !.
 abs(X,Y) :- Y is -X.
+
+% print_n(+N,+S)
+% Prints S N times
+print_n(0, _) :- !.
+
+print_n(N, S) :-
+    N > 0,
+    write(S),
+    N1 is N-1,
+    !,
+    print_n(N1, S).
