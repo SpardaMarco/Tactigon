@@ -2,35 +2,34 @@
     
 % board(+State, -Board)
 % Unifies Board with the board at the current State
-
 board(initial, 
 [
-    position(cianCircle1, tile(3, 0)),
-    position(cianCircle2, tile(1, 1)),
-    position(cianSquare1, tile(2, 1)),
-    position(cianTriangle1, tile(3, 1)),
-    position(cianSquare2, tile(4, 1)),
-    position(cianCircle3, tile(5, 1)),
-    position(cianTriangle2, tile(2, 2)),
-    position(cianPentagon, tile(3, 2)),
-    position(cianTriangle3, tile(4, 2)),
-    position(cianCircle4, tile(1, 3)),
-    position(cianSquare3, tile(3, 3)),
-    position(cianCircle5, tile(5, 3)),
-    position(cianCircle6, tile(3, 4)),
-    position(redCircle1, tile(3, 6)),
-    position(redCircle2, tile(1, 7)),
-    position(redTriangle1, tile(2, 7)),
-    position(redSquare1, tile(3, 7)),
-    position(redTriangle2, tile(4, 7)),
-    position(redCircle3, tile(5, 7)),
-    position(redSquare2, tile(2, 8)),
-    position(redPentagon, tile(3, 8)),
-    position(redSquare3, tile(4, 8)),
-    position(redCircle4, tile(1, 9)),
-    position(redTriangle3, tile(3, 9)),
-    position(redCircle5, tile(5, 9)),
-    position(redCircle6, tile(3, 10))
+    position(cian-circle-1, tile(3, 0)),
+    position(cian-circle-2, tile(1, 1)),
+    position(cian-square-1, tile(2, 1)),
+    position(cian-triangle-1, tile(3, 1)),
+    position(cian-square-2, tile(4, 1)),
+    position(cian-circle-3, tile(5, 1)),
+    position(cian-triangle-2, tile(2, 2)),
+    position(cian-pentagon-, tile(3, 2)),
+    position(cian-triangle-3, tile(4, 2)),
+    position(cian-circle-4, tile(1, 3)),
+    position(cian-square-3, tile(3, 3)),
+    position(cian-circle-5, tile(5, 3)),
+    position(cian-circle-6, tile(3, 4)),
+    position(red-circle-1, tile(3, 6)),
+    position(red-circle-2, tile(1, 7)),
+    position(red-triangle-1, tile(2, 7)),
+    position(red-square-1, tile(3, 7)),
+    position(red-triangle-2, tile(4, 7)),
+    position(red-circle-3, tile(5, 7)),
+    position(red-square-2, tile(2, 8)),
+    position(red-pentagon-, tile(3, 8)),
+    position(red-square-3, tile(4, 8)),
+    position(red-circle-4, tile(1, 9)),
+    position(red-triangle-3, tile(3, 9)),
+    position(red-circle-5, tile(5, 9)),
+    position(red-circle-6, tile(3, 10))
 ]
 ).
 
@@ -80,32 +79,18 @@ opponent(red, cian).
 
 % piece_info(+Piece, -Player, -Type)
 % Unifies Player and Type with the player and type of Piece
-piece_info(cianCircle1, cian, circle).
-piece_info(cianCircle2, cian, circle).
-piece_info(cianCircle3, cian, circle).
-piece_info(cianCircle4, cian, circle).
-piece_info(cianCircle5, cian, circle).
-piece_info(cianCircle6, cian, circle).
-piece_info(cianTriangle1, cian, triangle).
-piece_info(cianTriangle2, cian, triangle).
-piece_info(cianTriangle3, cian, triangle).
-piece_info(cianSquare1, cian, square).
-piece_info(cianSquare2, cian, square).
-piece_info(cianSquare3, cian, square).
-piece_info(cianPentagon, cian, pentagon).
-piece_info(redCircle1, red, circle).
-piece_info(redCircle2, red, circle).
-piece_info(redCircle3, red, circle).
-piece_info(redCircle4, red, circle).
-piece_info(redCircle5, red, circle).
-piece_info(redCircle6, red, circle).
-piece_info(redTriangle1, red, triangle).
-piece_info(redTriangle2, red, triangle).
-piece_info(redTriangle3, red, triangle).
-piece_info(redSquare1, red, square).
-piece_info(redSquare2, red, square).
-piece_info(redSquare3, red, square).
-piece_info(redPentagon, red, pentagon).
+piece_info(Player-Type-_, Player, Type).
+
+% piece_print_info(+Type, +Player, -PrintType)
+% Unifies PrintType with the type of Piece to be printed
+piece_print_info(circle, cian, 'cc').
+piece_print_info(triangle, cian, 'ct').
+piece_print_info(square, cian, 'cs').
+piece_print_info(pentagon, cian, 'cp').
+piece_print_info(circle, red, 'rc').
+piece_print_info(triangle, red, 'rt').
+piece_print_info(square, red, 'rs').
+piece_print_info(pentagon, red, 'rp').
 
 % piece(+Piece)
 % All pieces
@@ -144,52 +129,202 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
     ABSX == 1,
     !.
 
-draw_header :-
-    write('   |X |X0|X1|X2|X3|X4|X5|X6|  |'), nl,
-    write('---|--------------------------|---'), nl.
+% find_piece(+Board, ?Piece, ?Tile)
+% Unifies Piece with the piece at Tile on Board
+find_piece(ListOfPiecePositions, Piece, tile(X, Y)) :-
+    member(position(Piece, tile(X, Y)), ListOfPiecePositions).
 
-draw_footer :-
-    write('---|--------------------------|---'), nl,
-    write('   |X |X0|X1|X2|X3|X4|X5|X6|  |'), nl.
-
-draw_board(Board) :-
-    write('Y  |            __            |Y'), nl,
-    draw_board_lines(Board, 0, 10).
-
-draw_board_lines(_, Y, MaxY) :- 
-    Y > MaxY,
+% tile_to_string(+Board, +Tile, -String)
+% Unifies String with the string representation of Tile on Board
+tile_to_string(ListOfPiecePositions, tile(X, Y), String) :-
+    find_piece(ListOfPiecePositions, Piece, tile(X, Y)),
+    piece_info(Piece, Player, Type),
+    piece_print_info(Type, Player, String),
     !.
 
-draw_board_lines(Board, Y, MaxY) :-
-    draw_board_line(Board, Y),
-    Y1 is Y + 1,
-    !,
-    draw_board_lines(Board, Y1, MaxY).
+tile_to_string(_, tile(_, _), 'none').
 
-draw_board_line(Board, Y) :-
-    Y < 10,
-    format('Y~d |', [Y]),
-    print_n(26, ' '),
-    format('|Y~d', [Y]),
-    nl,
-    format('Y~d |', [Y]),
-    print_n(26, ' '),
-    format('|Y~d', [Y]),
-    nl.
 
-draw_board_line(Board, Y) :-
-    format('Y~d|', [Y]),
-    print_n(26, ' '),
-    format('|Y~d', [Y]),
-    nl,
-    format('Y~d|', [Y]),
-    print_n(26, ' '),
-    format('|Y~d', [Y]),
-    nl.
+% ------------------------- %
+%         DRAW BOARD        %
+% ------------------------- %
 
-    
-
+% draw_board(+Board)
+% Draws the board temporarlily for testing purposes
 draw_temp(Board) :-
     draw_header,
     draw_board(Board),
     draw_footer.
+
+% draw_header
+% Draws the header of the board
+draw_header :-
+    write('   |X |X0|X1|X2|X3|X4|X5|X6|  |'), nl,
+    write('---|--------------------------|---'), nl,
+    write('Y  |            __            |Y'), nl.
+
+% draw_footer
+% Draws the footer of the board
+draw_footer :-
+    write('---|--------------------------|---'), nl,
+    write('   |X |X0|X1|X2|X3|X4|X5|X6|  |'), nl.
+
+% draw_board(+Board)
+% Draws the board
+draw_board(board(_, ListOfPiecePositions)) :-
+    MaxY is 2*10 + 1,
+    draw_board_aux(ListOfPiecePositions, 0, MaxY).
+
+% draw_board_aux(+Board, +Y, +MaxY)
+% Draws the board from Y to MaxY, with the borders, assuming each "line" is 2 lines
+draw_board_aux(_, Y, MaxY) :- 
+    Y > MaxY,
+    !.
+
+draw_board_aux(ListOfPiecePositions, Y, MaxY) :-
+    draw_board_line(ListOfPiecePositions, Y),
+    Y1 is Y + 1,
+    !,
+    draw_board_lines(ListOfPiecePositions, Y1, MaxY).
+
+% draw_board_line(+Board, +Y)
+% Draws the line Y of the board, assuming each "line of the real board" is 2 lines of the printed board
+draw_board_line(ListOfPiecePositions, Y) :-
+    CurrentY is Y // 2,
+    CurrentY < 10,
+    !,
+    format('Y~d |', [CurrentY]),
+    build_line(ListOfPiecePositions, CurrentY, Y, Line),
+    draw_hexagons(Line, draw(start, _)),
+    format('|Y~d', [CurrentY]),
+    nl.
+
+draw_board_line(ListOfPiecePositions, Y) :-
+    CurrentY is Y // 2,
+    format('Y~d|', [CurrentY]),
+    build_line(ListOfPiecePositions, CurrentY, Y, Line),
+    draw_hexagons(Line, draw(start, _)),
+    format('|Y~d', [CurrentY]),
+    nl.
+
+% build_line(+Board, +CurrentY, +Y, -Line)
+% Builds a Line, which is a list of draw objects that represent the line Y of the board
+build_line(ListOfPiecePositions, CurrentY, Y, Line) :-
+    build_line(ListOfPiecePositions, CurrentY, Y, 0, [draw(start, _)], Line).
+
+% build_line(+Board, +CurrentY, +Y, +X, +Aux, -Line)
+% Builds a Line, which is a list of draw objects that represent the line Y of the board
+build_line(_, _, _, 7, Aux, List) :-
+    append(Aux, [draw(none, _)], List),
+    !.
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    \+ tile(X, CurrentY),
+    1 is Y mod 2,
+    1 is X mod 2,
+    NY is CurrentY + 1,
+    tile(X, NY),
+    append(Aux, [draw(startBottom, _)], Aux1),
+    X1 is X + 1,
+    !,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    \+ tile(X, CurrentY),
+    0 is Y mod 2,
+    0 is X mod 2,
+    PY is CurrentY - 1,
+    tile(X, PY),
+    append(Aux, [draw(bottom, _)], Aux1),
+    X1 is X + 1,
+    !,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    \+ tile(X, CurrentY),
+    append(Aux, [draw(none, _)], Aux1),
+    X1 is X + 1,
+    !,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    0 is Y mod 2,
+    0 is X mod 2,
+    !,
+    PY is CurrentY - 1,
+    (tile(X, PY) -> append(Aux, [draw(bottom, _)], Aux1);
+    append(Aux, [draw(startBottom, _)], Aux1)),
+    X1 is X + 1,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    0 is Y mod 2,
+    1 is X mod 2,
+    !,
+    tile_to_string(ListOfPiecePositions, tile(X, CurrentY), String),
+    append(Aux, [draw(top, String)], Aux1),
+    X1 is X + 1,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    1 is Y mod 2,
+    0 is X mod 2,
+    !,
+    tile_to_string(ListOfPiecePositions, tile(X, CurrentY), String),
+    append(Aux, [draw(top, String)], Aux1),
+    X1 is X + 1,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+    1 is Y mod 2,
+    1 is X mod 2,
+    !,
+    append(Aux, [draw(bottom, _)], Aux1),
+    X1 is X + 1,
+    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+
+% draw_hexagons(+Line, +LastState)
+% Draws the hexagons of a line, and updates the LastState
+draw_hexagons([], _) :- !.
+
+draw_hexagons([H|T], LastState) :-
+    draw_hexagon(LastState, H),
+    draw_hexagons(T, H).
+
+% draw_hexagon(+LastState, +State)
+% Logic for drawing a hexagon, depending on the LastState and the State
+draw_hexagon(draw(top, _), draw(none, _)) :-
+    write('\\  '),
+    !.
+
+draw_hexagon(draw(bottom, _), draw(none, _)) :-
+    write('/  '),
+    !.
+
+draw_hexagon(_, draw(none, _)) :-
+    write('   '),
+    !.
+
+draw_hexagon(_, draw(start, _)) :-
+    write('  '),
+    !.
+
+draw_hexagon(_, draw(bottom, _)) :-
+    write('\\__'),
+    !.
+
+draw_hexagon(_, draw(top, none)) :-
+    write('/  '),
+    !.
+draw_hexagon(_, draw(top, PrintType)) :-
+    format('/~w', [PrintType]),
+    !.
+
+draw_hexagon(draw(top, _), draw(startBottom, _)) :-
+    write('\\__'),
+    !.
+
+draw_hexagon(_, draw(startBottom, _)) :-
+    write(' __'),
+    !.

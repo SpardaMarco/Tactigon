@@ -8,7 +8,7 @@ clear_screen:-
 % read_number_input(-Number)
 % Reads a number from user input, unifying it with Number
 read_number_input(X):-
-    read_number_aux(X,0).
+    read_number_input_aux(X,0).
 read_number_input_aux(X,ACC):- 
     get_code(C),
     between(48, 57, C), % 48 is ASCII code for 0 and 57 is ASCII code for 9
@@ -17,12 +17,12 @@ read_number_input_aux(X,ACC):-
     read_number_input_aux(X, ACC1).
 read_number_input_aux(X,X).
 
-% get_option(+MinValue,+MaxValue,-Option)
-% Unifies Option with the value given by user input between Min and Max
-get_option(MinValue, MaxValue, Option):-
-    format('Select between ~d and ~d: ', [MinValue, MaxValue]),
+% get_option(+MinValue,+MaxValue,+Objective,-Option)
+% Unifies Option with the value given by user input between Min and Max given an objective
+get_option(MinValue, MaxValue, Objective, Option):-
+    format('~a between ~d and ~d: ', [Objective, MinValue, MaxValue]),
     repeat,
-    read_number(Option),
+    read_number_input(Option),
     between(MinValue, MaxValue, Option), 
     !.
 
