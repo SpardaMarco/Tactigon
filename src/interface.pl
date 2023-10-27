@@ -1,4 +1,5 @@
 :- ensure_loaded('utils.pl').
+:- ensure_loaded('board.pl').
 
 % draw_title/0
 % Draws the title banner of the game
@@ -27,3 +28,16 @@ display_menu :-
     nl,nl,
     draw_menu_options,
     nl,nl.
+
+% display_game(+GameState)
+% Displays the game and all its elements
+display_game(GameState) :-
+    clear_screen,
+    draw_board(GameState),
+    nl,nl.
+
+get_difficulty(P, Diffculty) :-
+    write('Player '), write(P), write(' is:'), nl,
+    write('1 - Human'), nl,
+    write('2 - Level 1 Bot (Random)'), nl,
+    write('3 - Level 2 Bot (Greedy)'), nl.

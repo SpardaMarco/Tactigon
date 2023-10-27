@@ -11,7 +11,7 @@ board(initial,
     position(cian-square-2, tile(4, 1)),
     position(cian-circle-3, tile(5, 1)),
     position(cian-triangle-2, tile(2, 2)),
-    position(cian-pentagon-, tile(3, 2)),
+    position(cian-pentagon, tile(3, 2)),
     position(cian-triangle-3, tile(4, 2)),
     position(cian-circle-4, tile(1, 3)),
     position(cian-square-3, tile(3, 3)),
@@ -24,7 +24,7 @@ board(initial,
     position(red-triangle-2, tile(4, 7)),
     position(red-circle-3, tile(5, 7)),
     position(red-square-2, tile(2, 8)),
-    position(red-pentagon-, tile(3, 8)),
+    position(red-pentagon, tile(3, 8)),
     position(red-square-3, tile(4, 8)),
     position(red-circle-4, tile(1, 9)),
     position(red-triangle-3, tile(3, 9)),
@@ -83,14 +83,14 @@ piece_info(Player-Type-_, Player, Type).
 
 % piece_print_info(+Type, +Player, -PrintType)
 % Unifies PrintType with the type of Piece to be printed
-piece_print_info(circle, cian, 'cc').
-piece_print_info(triangle, cian, 'ct').
-piece_print_info(square, cian, 'cs').
-piece_print_info(pentagon, cian, 'cp').
-piece_print_info(circle, red, 'rc').
-piece_print_info(triangle, red, 'rt').
-piece_print_info(square, red, 'rs').
-piece_print_info(pentagon, red, 'rp').
+piece_print_info(circle, cian, 'CC').
+piece_print_info(triangle, cian, 'CT').
+piece_print_info(square, cian, 'CS').
+piece_print_info(pentagon, cian, 'CP').
+piece_print_info(circle, red, 'RC').
+piece_print_info(triangle, red, 'RT').
+piece_print_info(square, red, 'RS').
+piece_print_info(pentagon, red, 'RP').
 
 % piece(+Piece)
 % All pieces
@@ -131,15 +131,20 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
 
 % find_piece(+Board, ?Piece, ?Tile)
 % Unifies Piece with the piece at Tile on Board
-find_piece(ListOfPiecePositions, Piece, tile(X, Y)) :-
-    member(position(Piece, tile(X, Y)), ListOfPiecePositions).
+find_piece(Board, Piece, tile(X, Y)) :-
+    member(position(Piece, tile(X, Y)), Board).
 
 % tile_to_string(+Board, +Tile, -String)
 % Unifies String with the string representation of Tile on Board
-tile_to_string(ListOfPiecePositions, tile(X, Y), String) :-
-    find_piece(ListOfPiecePositions, Piece, tile(X, Y)),
+tile_to_string(Board, tile(X, Y), String) :-
+    find_piece(Board, Piece, tile(X, Y)),
     piece_info(Piece, Player, Type),
     piece_print_info(Type, Player, String),
+    !.
+
+tile_to_string(Board, tile(X, Y), String) :-
+    goldTile(X, Y),
+    String = 'GT',
     !.
 
 tile_to_string(_, tile(_, _), 'none').
@@ -148,13 +153,6 @@ tile_to_string(_, tile(_, _), 'none').
 % ------------------------- %
 %         DRAW BOARD        %
 % ------------------------- %
-
-% draw_board(+Board)
-% Draws the board temporarlily for testing purposes
-draw_temp(Board) :-
-    draw_header,
-    draw_board(Board),
-    draw_footer.
 
 % draw_header
 % Draws the header of the board
@@ -171,9 +169,11 @@ draw_footer :-
 
 % draw_board(+Board)
 % Draws the board
-draw_board(board(_, ListOfPiecePositions)) :-
+draw_board([Board, _]) :-
     MaxY is 2*10 + 1,
-    draw_board_aux(ListOfPiecePositions, 0, MaxY).
+    draw_header,
+    draw_board_aux(Board, 0, MaxY),
+    draw_footer.
 
 % draw_board_aux(+Board, +Y, +MaxY)
 % Draws the board from Y to MaxY, with the borders, assuming each "line" is 2 lines
@@ -181,36 +181,36 @@ draw_board_aux(_, Y, MaxY) :-
     Y > MaxY,
     !.
 
-draw_board_aux(ListOfPiecePositions, Y, MaxY) :-
-    draw_board_line(ListOfPiecePositions, Y),
+draw_board_aux(Board, Y, MaxY) :-
+    draw_board_line(Board, Y),
     Y1 is Y + 1,
     !,
-    draw_board_lines(ListOfPiecePositions, Y1, MaxY).
+    draw_board_aux(Board, Y1, MaxY).
 
 % draw_board_line(+Board, +Y)
 % Draws the line Y of the board, assuming each "line of the real board" is 2 lines of the printed board
-draw_board_line(ListOfPiecePositions, Y) :-
+draw_board_line(Board, Y) :-
     CurrentY is Y // 2,
     CurrentY < 10,
     !,
     format('Y~d |', [CurrentY]),
-    build_line(ListOfPiecePositions, CurrentY, Y, Line),
+    build_line(Board, CurrentY, Y, Line),
     draw_hexagons(Line, draw(start, _)),
     format('|Y~d', [CurrentY]),
     nl.
 
-draw_board_line(ListOfPiecePositions, Y) :-
+draw_board_line(Board, Y) :-
     CurrentY is Y // 2,
     format('Y~d|', [CurrentY]),
-    build_line(ListOfPiecePositions, CurrentY, Y, Line),
+    build_line(Board, CurrentY, Y, Line),
     draw_hexagons(Line, draw(start, _)),
     format('|Y~d', [CurrentY]),
     nl.
 
 % build_line(+Board, +CurrentY, +Y, -Line)
 % Builds a Line, which is a list of draw objects that represent the line Y of the board
-build_line(ListOfPiecePositions, CurrentY, Y, Line) :-
-    build_line(ListOfPiecePositions, CurrentY, Y, 0, [draw(start, _)], Line).
+build_line(Board, CurrentY, Y, Line) :-
+    build_line(Board, CurrentY, Y, 0, [draw(start, _)], Line).
 
 % build_line(+Board, +CurrentY, +Y, +X, +Aux, -Line)
 % Builds a Line, which is a list of draw objects that represent the line Y of the board
@@ -218,7 +218,7 @@ build_line(_, _, _, 7, Aux, List) :-
     append(Aux, [draw(none, _)], List),
     !.
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     \+ tile(X, CurrentY),
     1 is Y mod 2,
     1 is X mod 2,
@@ -227,10 +227,10 @@ build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
     append(Aux, [draw(startBottom, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     \+ tile(X, CurrentY),
     0 is Y mod 2,
     0 is X mod 2,
@@ -239,16 +239,16 @@ build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
     append(Aux, [draw(bottom, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     \+ tile(X, CurrentY),
     append(Aux, [draw(none, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     0 is Y mod 2,
     0 is X mod 2,
     !,
@@ -256,33 +256,33 @@ build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
     (tile(X, PY) -> append(Aux, [draw(bottom, _)], Aux1);
     append(Aux, [draw(startBottom, _)], Aux1)),
     X1 is X + 1,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     0 is Y mod 2,
     1 is X mod 2,
     !,
-    tile_to_string(ListOfPiecePositions, tile(X, CurrentY), String),
+    tile_to_string(Board, tile(X, CurrentY), String),
     append(Aux, [draw(top, String)], Aux1),
     X1 is X + 1,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     1 is Y mod 2,
     0 is X mod 2,
     !,
-    tile_to_string(ListOfPiecePositions, tile(X, CurrentY), String),
+    tile_to_string(Board, tile(X, CurrentY), String),
     append(Aux, [draw(top, String)], Aux1),
     X1 is X + 1,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
-build_line(ListOfPiecePositions, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, List) :-
     1 is Y mod 2,
     1 is X mod 2,
     !,
     append(Aux, [draw(bottom, _)], Aux1),
     X1 is X + 1,
-    build_line(ListOfPiecePositions, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, List).
 
 % draw_hexagons(+Line, +LastState)
 % Draws the hexagons of a line, and updates the LastState
