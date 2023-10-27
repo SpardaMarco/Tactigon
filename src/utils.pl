@@ -26,6 +26,15 @@ get_option(MinValue, MaxValue, Objective, Option):-
     between(MinValue, MaxValue, Option), 
     !.
 
+% Read a move from user input in format X-Y without the . in the end, and unifies it with Coordinates
+get_move_input(Player, Coordinates) :-
+    repeat,
+    read(X-Y),
+    between(0, 6, X),
+    between(0, 10, Y),
+    !,
+    Coordinates = X-Y.
+
 % abs(+X,-Y)
 % Unifies Y with the absolute value of X
 abs(X,X) :- X >= 0, !.

@@ -41,10 +41,10 @@ tile(X, Y) :-
     between(MinX, MaxX, X),
     !.
 
-% goldTile(+X, +Y)
+% gold_tile(+X, +Y)
 % Gold tiles on the board
-goldTile(1, 5).
-goldTile(5, 5).
+gold_tile(1, 5).
+gold_tile(5, 5).
 
 % line(+Y, -MinX, -MaxX)
 % Unifies MinX and MaxX with the minimum and maximum X values of the line Y
@@ -71,6 +71,11 @@ movement(pentagon, 5).
 % All players
 player(cian).
 player(red).
+
+% other_player(+Player, -OtherPlayer)
+% Unifies OtherPlayer with the other player
+other_player(cian, red).
+other_player(red, cian).
 
 % opponent(+Player, -Opponent)
 % Unifies Opponent with the opponent of Player
@@ -143,7 +148,7 @@ tile_to_string(Board, tile(X, Y), String) :-
     !.
 
 tile_to_string(Board, tile(X, Y), String) :-
-    goldTile(X, Y),
+    gold_tile(X, Y),
     String = 'GT',
     !.
 

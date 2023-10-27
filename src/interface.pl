@@ -1,5 +1,6 @@
 :- ensure_loaded('utils.pl').
 :- ensure_loaded('board.pl').
+:- ensure_loaded('logic.pl').
 
 % draw_title/0
 % Draws the title banner of the game
@@ -33,11 +34,30 @@ display_menu :-
 % Displays the game and all its elements
 display_game(GameState) :-
     clear_screen,
+    nl,
     draw_board(GameState),
+    display_legend,
     nl,nl.
 
-get_difficulty(P, Diffculty) :-
+display_legend :-
+    write('Legend:'), nl,
+    write('CC - Cian Circle'), write('    '), write('RC - Red Circle'), nl,
+    write('CT - Cian Triangle'), write('  '), write('RT - Red Triangle'), nl,
+    write('CS - Cian Square'), write('    '), write('RS - Red Square'), nl,
+    write('CP - Cian Pentagon'), write('  '), write('RP - Red Pentagon'), nl,
+    write('Gold Tiles (GT):'), write(' '), write('(1, 5)'), write(', '), write('(5, 5)'), nl.
+
+% ask_difficulty(+Player)
+% Displays the difficulty options for the player
+ask_difficulty(P) :-
     write('Player '), write(P), write(' is:'), nl,
     write('1 - Human'), nl,
     write('2 - Level 1 Bot (Random)'), nl,
     write('3 - Level 2 Bot (Greedy)'), nl.
+
+ask_move([Board, Player], OX-OY-DX-DY) :-
+    format('Player ~w, please choose a piece to move (X-Y): ', [Player]),
+    get_move_input(Player, OX-OY),
+    format('Player ~w, please where to move the piece (X-Y): ', [Player]),
+    get_move_input(Player, DX-DY).
+
