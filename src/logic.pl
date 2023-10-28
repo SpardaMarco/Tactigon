@@ -1,3 +1,11 @@
+:- ensure_loaded('board.pl').
+
+validate_move([Board, Player], OX-OY-DX-DY) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    piece_info(Piece, Player, Type),
+    movement(Type, Movement).
+
+
 % Combat Logic
 
 % combat(+Attacker, +Defender, -Winner)

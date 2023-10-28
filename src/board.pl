@@ -134,6 +134,21 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
     ABSX == 1,
     !.
 
+% evenq_to_cube(+X, +Y, -cube(+XC, +YC, +ZC))
+% Transforms the even-q coordinates X, Y into cube coordinates XC, YC, ZC
+evenq_to_cube(X, Y, cube(XC, YC, ZC)) :-
+    XC is X,
+    ZC is Y - (X - (X mod 2)) div 2,
+    YC is -XC - ZC.
+
+% distance(tile(+X, +Y), tile(+X1, +Y1), -Distance)
+% Unifies Distance with the distance between tile(X, Y) and tile(X1, Y1)
+distance(tile(X, Y), tile(X1, Y1), Distance) :-
+    evenq_to_cube(X, Y, cube(XC, YC, ZC)),
+    evenq_to_cube(X1, Y1, cube(XC1, YC1, ZC1)),
+    Distance is (abs(XC - XC1) + abs(YC - YC1) + abs(ZC - ZC1)) div 2.
+    !.
+
 % find_piece(+Board, ?Piece, ?Tile)
 % Unifies Piece with the piece at Tile on Board
 find_piece(Board, Piece, tile(X, Y)) :-
