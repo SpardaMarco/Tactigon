@@ -24,10 +24,6 @@ processMenuOption(2) :-
 processMenuOption(3) :-
     clear_screen,
     !.
-    
-%temporary for testing
-game_over(_, _) :-
-    fail.
 
 % game_loop(+GameState)
 % Main game loop
