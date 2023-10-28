@@ -77,10 +77,6 @@ player(red).
 other_player(cian, red).
 other_player(red, cian).
 
-% opponent(+Player, -Opponent)
-% Unifies Opponent with the opponent of Player
-opponent(cian, red).
-opponent(red, cian).
 
 % piece_info(+Piece, -Player, -Type)
 % Unifies Player and Type with the player and type of Piece
@@ -134,19 +130,20 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
     ABSX == 1,
     !.
 
-% evenq_to_cube(+X, +Y, -cube(+XC, +YC, +ZC))
-% Transforms the even-q coordinates X, Y into cube coordinates XC, YC, ZC
-evenq_to_cube(X, Y, cube(XC, YC, ZC)) :-
-    XC is X,
-    ZC is Y - (X - (X mod 2)) div 2,
-    YC is -XC - ZC.
+% evenq_to_cube(+X, +Y, -cube(+Q, +R, +S))
+% Transforms the even-q coordinates X, Y into cube coordinates Q, R, S
+evenq_to_cube(X, Y, cube(Q, R, S)) :-
+    Q is X,
+    R is Y - (X + (X mod 2)) div 2,
+    S is -Q - R,
+    !.
 
 % distance(tile(+X, +Y), tile(+X1, +Y1), -Distance)
 % Unifies Distance with the distance between tile(X, Y) and tile(X1, Y1)
 distance(tile(X, Y), tile(X1, Y1), Distance) :-
-    evenq_to_cube(X, Y, cube(XC, YC, ZC)),
-    evenq_to_cube(X1, Y1, cube(XC1, YC1, ZC1)),
-    Distance is (abs(XC - XC1) + abs(YC - YC1) + abs(ZC - ZC1)) div 2.
+    evenq_to_cube(X, Y, cube(QC, RC, SC)),
+    evenq_to_cube(X1, Y1, cube(QC1, RC1, SC1)),
+    Distance is (abs(QC - QC1) + abs(RC - RC1) + abs(SC - SC1)) div 2,
     !.
 
 % find_piece(+Board, ?Piece, ?Tile)

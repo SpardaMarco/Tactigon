@@ -25,7 +25,6 @@ processMenuOption(3) :-
     clear_screen,
     !.
     
-    
 %temporary for testing
 game_over(_, _) :-
     fail.
@@ -47,7 +46,7 @@ game_loop(GameState) :-
 % process_turn(+GameState, -NewGameState)
 % Processes the turn of the current player
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    settings(Player, 1),
+    difficulty(Player, 1),
     % valid_moves([Board, Player], Moves),
     !,
     repeat,
