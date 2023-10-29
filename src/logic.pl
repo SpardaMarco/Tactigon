@@ -1,3 +1,4 @@
+:- use_module(library(lists)).
 :- ensure_loaded('board.pl').
 
 validate_move([Board, Player], OX-OY-DX-DY) :-
@@ -6,6 +7,27 @@ validate_move([Board, Player], OX-OY-DX-DY) :-
     movement(Type, Movement).
 
 
+
+% move(+GameState, +Move, -NewGameState)
+% Moves a piece from one tile to another
+move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    member(position(Defender, tile(DX, DY)), Board),
+    piece_info(Piece, _, Type),
+    piece_info(Defender, _, DefenderType),
+    combat(Type, DefenderType, none),
+    !,
+    delete(Board, position(Piece, tile(OX, OY)), Board1),
+    delete(Board1, position(Defender, tile(DX, DY)), NewBoard),
+    other_player(Player, NewPlayer).
+
+move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    !,
+    delete(Board, position(Piece, tile(OX, OY)), Board1),
+    delete(Board1, position(Defender, tile(DX, DY)), Board2),
+    append(Board2, [position(Piece, tile(DX, DY))], NewBoard),
+    other_player(Player, NewPlayer).
 
 
 % game_over(+GameState, -Winner)
@@ -23,6 +45,7 @@ game_over([Board, Player], Player) :-
 % Combat Logic
 
 % combat(+Attacker, +Defender, -Winner)
+% Returns the winner of a combat between Attacker and Defender
 combat(circle, _, circle).
 combat(triangle, circle, none) :- !.
 combat(triangle, _, triangle).

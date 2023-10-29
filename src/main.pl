@@ -35,9 +35,9 @@ game_loop(GameState) :-
 
 game_loop(GameState) :-
     display_game(GameState),
-    process_turn(GameState, NewGameState).
-    % !,
-    % game_loop(NewGameState).
+    process_turn(GameState, NewGameState),
+    !,
+    game_loop(NewGameState).
 
 % process_turn(+GameState, -NewGameState)
 % Processes the turn of the current player
@@ -47,10 +47,8 @@ process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     !,
     repeat,
     ask_move([Board, Player], OX-OY-DX-DY),
-    validate_move([Board, Player], OX-OY-DX-DY),
-    format('OX: ~d, OY: ~d, DX: ~d, DY: ~d\n', [OX, OY, DX, DY]),
-
-    % move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
+    % validate_move([Board, Player], OX-OY-DX-DY),
+    move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 % play/0
 % Starts the game
