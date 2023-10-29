@@ -31,7 +31,9 @@ game_loop(GameState) :-
     game_over(GameState, Winner),
     !,
     display_game(GameState),
-    display_winner(Winner).
+    display_winner(Winner),
+    !,
+    menu.
 
 game_loop(GameState) :-
     display_game(GameState),

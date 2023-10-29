@@ -50,6 +50,13 @@ display_legend :-
     write('CP - Cian Pentagon'), write('  '), write('RP - Red Pentagon'), nl,
     write('Gold Tiles (GT):'), write(' '), write('(1, 5)'), write(', '), write('(5, 5)'), nl.
 
+% display_winner(+Winner)
+% Displays the winner of the game
+display_winner(Winner) :-
+    write('The winner is: '), write(Winner), nl,
+    write('Press any key to return to the menu.'), nl,
+    get_char(_).
+
 % ask_difficulty(+Player)
 % Displays the difficulty options for the player
 ask_difficulty(P) :-
