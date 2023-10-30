@@ -27,8 +27,9 @@ valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY) :-
     N1 is N - 1,
     member(position(Piece, tile(OX, OY)), Board),
     piece_info(Piece, Player, _),  % Check if it's the player's piece
-    findall(OX1-OY1, adjacent(tile(OX, OY), tile(OX1, OY1)), AdjacentTiles),  
+    findall(OX1-OY1, adjacent(tile(OX, OY), tile(OX1, OY1)), AdjacentTiles),
     member(DX-DY, AdjacentTiles),
+    \+ member(position(_, tile(DX, DY)), Board),  % Check if the destination tile is empty
     valid_move_bfs(Board, Player, N1, Piece, DX, DY, DX, DY).
 
 % move(+GameState, +Move, -NewGameState)
