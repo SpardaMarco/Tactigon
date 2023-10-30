@@ -1,12 +1,36 @@
 :- ensure_loaded('board.pl').
 
+% Movement Logic
+
+% validate_move(+GameState, +Move)
+% Checks if a move is valid
 validate_move([Board, Player], OX-OY-DX-DY) :-
     member(position(Piece, tile(OX, OY)), Board),
     piece_info(Piece, Player, Type),
-    movement(Type, Movement).
+    valid_move_for_piece(Board, Player, Type, OX, OY, DX, DY).
 
+% valid_move_for_piece(+Board, +Player, +Piece, +OX, +OY, +DX, +DY)
+% Checks if a move is valid for a particular piece on the board
+valid_move_for_piece(Board, Player, Piece, OX, OY, DX, DY) :-
+    movement(Piece, N),  % N is the maximum number of steps for this particular piece
+    valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY).
 
+% valid_move_bfs(+Board, +Player, +N, +Piece, +OX, +OY, +DX, +DY)
+% Checks if the move is valid using BFS for N-1 levels
+valid_move_bfs(_, _, 0, _, OX, OY, DX, DY) :-
+    % If we have completed N-1 levels of BFS, check if DX-DY is adjacent to the current OX-OY
+    adjacent(tile(OX, OY), tile(DX, DY)).
 
+valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY) :-
+    N > 0,
+    N1 is N - 1,
+    member(position(Piece, tile(OX, OY)), Board),
+    piece_info(Piece, Player, _),  % Check if it's the player's piece
+    findall(OX1-OY1, adjacent(tile(OX, OY), tile(OX1, OY1)), AdjacentTiles),  
+    member(DX-DY, AdjacentTiles),
+    valid_move_bfs(Board, Player, N1, Piece, DX, DY, DX, DY).
+
+% Game Over Logic
 
 % game_over(+GameState, -Winner)
 % Checks if the game is over and returns the winner
