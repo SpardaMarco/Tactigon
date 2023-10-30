@@ -22,7 +22,6 @@ valid_move_bfs(_, _, 0, _, OX, OY, DX, DY) :-
     % If we have completed N-1 levels of BFS, check if DX-DY is adjacent to the current OX-OY
     adjacent(tile(OX, OY), tile(DX, DY)).
 
-
 valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY) :-
     N > 0,
     N1 is N - 1,
