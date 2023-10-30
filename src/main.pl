@@ -62,3 +62,14 @@ play :-
 valid_moves([Board, Player], Player, Moves) :-
     findall(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
 
+% choose_move(+GameState, +Player, +Level, -Move).
+% Chooses a move for the current player
+choose_move([Board, Player], Player, Level, Move) :-
+    valid_moves([Board, Player], Player, Moves),
+    choose_move_aux([Board, Player], Player, Level, Moves, Move).
+
+% choose_move_aux(+GameState, +Player, +Level, +Moves, -Move).
+choose_move_aux([Board, Player], Player, 1, Moves, Move) :-
+    length(Moves, Length),
+    random(0, Length, Index),
+    nth0(Index, Moves, Move).
