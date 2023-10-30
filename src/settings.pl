@@ -1,5 +1,5 @@
 % difficulty(+Player, -Difficulty)
-% Gets the difficulty of the player. 1 for human player, 2 for easy, 3 for hard
+% Gets the difficulty level. 0 for human player, 1 for easy bot (valid random move) and 2 for hard bot (the best play at the time)
 :- dynamic difficulty/2.
 difficulty(cian, 1).
 difficulty(red, 2).

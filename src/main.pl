@@ -61,3 +61,4 @@ play :-
 % Gets all the valid moves for the current player
 valid_moves([Board, Player], Player, Moves) :-
     findall(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
+

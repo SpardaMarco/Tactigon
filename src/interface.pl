@@ -61,9 +61,9 @@ display_winner(Winner) :-
 % Displays the difficulty options for the player
 ask_difficulty(P) :-
     write('Player '), write(P), write(' is:'), nl,
-    write('1 - Human'), nl,
-    write('2 - Level 1 Bot (Random)'), nl,
-    write('3 - Level 2 Bot (Greedy)'), nl.
+    write('0 - Human'), nl,
+    write('1 - Level 1 Bot (Random)'), nl,
+    write('2 - Level 2 Bot (Greedy)'), nl.
 
 ask_rules :-
     write('Additional Rules:'), nl,
@@ -90,10 +90,10 @@ ask_move([Board, Player], OX-OY-DX-DY) :-
 % Asks the user for new settings
 change_settings :-
     ask_difficulty(cian),
-    get_option(1, 3, 'Select an option', CianDifficulty),
+    get_option(0, 2, 'Select an option', CianDifficulty),
     process_difficulty_option(cian, CianDifficulty),
     ask_difficulty(red),
-    get_option(1, 3, 'Select an option', RedDifficulty),
+    get_option(0, 2, 'Select an option', RedDifficulty),
     process_difficulty_option(red, RedDifficulty),
     ask_rules,
     get_option(0, 3, 'Select an option', Rules),
