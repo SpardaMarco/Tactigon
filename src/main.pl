@@ -1,3 +1,4 @@
+:- use_module(library(random)).
 :- ensure_loaded('state.pl').
 :- ensure_loaded('interface.pl').
 :- ensure_loaded('board.pl').
