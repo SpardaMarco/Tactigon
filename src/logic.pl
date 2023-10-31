@@ -8,26 +8,26 @@
 validate_move([Board, Player], OX-OY-DX-DY) :-
     member(position(Piece, tile(OX, OY)), Board),
     piece_info(Piece, Player, Type),
-    valid_move_for_piece(Board, Player, Type, OX, OY, DX, DY).
+    valid_move_for_piece([Board, Player], Type, OX-OY-DX-DY).
 
-% valid_move_for_piece(+Board, +Player, +Piece, +OX, +OY, +DX, +DY)
+% valid_move_for_piece(+GameState, +Piece, +Move)
 % Checks if a move is valid for a particular piece on the board
-valid_move_for_piece(Board, Player, Piece, OX, OY, DX, DY) :-
+valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
     movement(Piece, N),  % N is the maximum number of steps for this particular piece
-    valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY).
+    valid_move_bfs([Board, Player], N, Piece, OX-OY-DX-DY).
 
-% valid_move_bfs(+Board, +Player, +N, +Piece, +OX, +OY, +DX, +DY)
+% valid_move_bfs(+GameSate, +N, +Piece, +Move)
 % Checks if the move is valid using BFS for N-1 levels
-valid_move_bfs(_, _, 0, _, OX, OY, DX, DY) :-
+valid_move_bfs(_, 0, _, OX-OY-DX-DY) :-
     % If we have completed N-1 levels of BFS, check if DX-DY is adjacent to the current OX-OY
     adjacent(tile(OX, OY), tile(DX, DY)).
 
-valid_move_bfs(Board, Player, N, Piece, OX, OY, DX, DY) :-
+valid_move_bfs([Board, Player], N, Piece, OX-OY-DX-DY) :-
     N > 0,
     N1 is N - 1,
     adjacent(tile(OX, OY), tile(OX1, OY1)),  
     \+ member(position(_, tile(OX1, OY1)), Board),  % Check if the destination tile is empty
-    valid_move_bfs(Board, Player, N1, Piece, OX1, OY1, DX, DY).
+    valid_move_bfs([Board, Player], N1, Piece, OX1-OY1-DX-DY).
 
 % move(+GameState, +Move, -NewGameState)
 % Moves a piece from one tile to another
