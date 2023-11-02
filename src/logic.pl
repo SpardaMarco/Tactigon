@@ -79,20 +79,11 @@ choose_move([Board, Player], Player, 1, Move) :-
 % Chooses a move for the difficulty level 2 (greedy) bot
 choose_move([Board, Player], Player, 2, Move) :-
     valid_moves([Board, Player], Player, Moves), % Get all valid moves for the player
-    write(Moves), nl,
-    write('Before findall...'), nl,
     findall(Value-CurrentMove, (member(CurrentMove, Moves), move([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
-    write(ValuesMoves), nl,
-    write('After findall!'), nl,
     sort(ValuesMoves, SortedValuesMoves), % Sort the list of values and moves
-    write('After sort'), nl, 
     reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
-    write('After reverse'), nl,
-    write(ReversedValuesMoves), nl,
     ReversedValuesMoves = [MaxValue-_|_],
-    write('Before select_max'), nl, 
     select_max_value_move(ReversedValuesMoves, MaxValue, Move).
-    write('Before cut'), nl,
     !.
 
 % select_max_value_move(+ValuesMoves, +MaxValue, -Move)
@@ -106,8 +97,7 @@ select_max_value_move(ValuesMoves, MaxValue, Move) :-
 value([Board, Player], EvaluatedPlayer, Value) :-
     evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage),
     closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, Distance),
-    Value is Advantage - Distance,
-    write(Value).
+    Value is Advantage - Distance.
 
 
 % evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
@@ -116,8 +106,7 @@ evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage) :-
     count_player_pieces([Board, Player], EvaluatedPlayer, NumPlayerPieces),
     other_player(EvaluatedPlayer, Opponent),    
     count_player_pieces([Board, Player], Opponent, NumOpponentPieces),
-    Advantage is NumPlayerPieces - NumOpponentPieces,
-    write(Advantage).
+    Advantage is NumPlayerPieces - NumOpponentPieces.
 
 % count_player_pieces(+GameState, +EvaluatedPlayer, -NumPieces)
 % Count the number of pieces for the given player in the game state
@@ -128,7 +117,7 @@ count_player_pieces([Board, Player], EvaluatedPlayer, NumPieces) :-
 % closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
 % Find the piece of the given player that is closest to the opponent's pentagon
 closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, MinDistance) :-
-    findall(Position, (member(position(Piece, Position), piece_info(Piece, EvaluatedPlayer, _)), Board), PlayerPiecesPositions), % Get all the pieces of the player
+    findall(Position, (member(position(Piece, Position), Board), piece_info(Piece, EvaluatedPlayer, _)), PlayerPiecesPositions), % Get all the pieces of the player
     other_player(EvaluatedPlayer, Opponent),
     member(position(OpponentPiece, OpponentPiecePosition), Board), 
     piece_info(OpponentPiece, Opponent, pentagon), % Get the opponent's pentagon
