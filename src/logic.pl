@@ -1,4 +1,5 @@
 :- use_module(library(lists)).
+:- use_module(library(random)).
 :- ensure_loaded('board.pl').
 
 % Movement Logic
@@ -22,18 +23,16 @@ valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
 valid_move_dfs([Board, Player], N, _, OX-OY-DX-DY, CX-CY) :-
     N > 0,
     adjacent(tile(CX, CY), tile(DX, DY)), % Check if the destination tile is adjacent to the current tile
-    \+ member(position(_, tile(DX, DY)), Board),  % Check if the tile is empty
-    !.
+    \+ member(position(_, tile(DX, DY)), Board).  % Check if the tile is empty.
 
 valid_move_dfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     N > 0,
     adjacent(tile(CX, CY), tile(DX, DY)), % Check if the destination tile is adjacent to the current tile
     member(position(Defender, tile(DX, DY)), Board),  % Check if the destination tile is occupied
     other_player(Player, DefenderPlayer), 
-    piece_info(Defender, DefenderPlayer, DefenderType),  % Check if the destination tile is occupied by an enemy piece
+    piece_info(Defender, DefenderPlayer, DefenderType),  % Check if the destination tile is occupied by an opponent's piece
     piece_info(Piece, Player, Type), 
-    combat(Type, DefenderType, _), % Check if the piece can attack the enemy piece
-    !.
+    combat(Type, DefenderType, _). % Check if the piece can attack the opponent's piece.
 
 valid_move_dfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     N > 0,
@@ -73,9 +72,68 @@ valid_moves([Board, Player], Player, Moves) :-
 % choose_move(+GameState, +Player, +Level, -Move).
 % Chooses a move for the difficulty level 1 (random) bot
 choose_move([Board, Player], Player, 1, Move) :-
-    valid_moves([Board, Player], Player, Moves),
-    random_member(Move, Moves).
+    valid_moves([Board, Player], Player, Moves), % Get all the valid moves
+    random_member(Move, Moves). % Choose a random move
 
+% choose_move(+GameState, +Player, +Level, -Move).
+% Chooses a move for the difficulty level 2 (greedy) bot
+choose_move([Board, Player], Player, 2, Move) :-
+    valid_moves([Board, Player], Player, Moves), % Get all valid moves for the player
+    write(Moves), nl,
+    write('Before findall...'), nl,
+    findall(Value-CurrentMove, (member(CurrentMove, Moves), move([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
+    write(ValuesMoves), nl,
+    write('After findall!'), nl,
+    sort(ValuesMoves, SortedValuesMoves), % Sort the list of values and moves
+    write('After sort'), nl, 
+    reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
+    write('After reverse'), nl,
+    write(ReversedValuesMoves), nl,
+    ReversedValuesMoves = [MaxValue-_|_],
+    write('Before select_max'), nl, 
+    select_max_value_move(ReversedValuesMoves, MaxValue, Move).
+    write('Before cut'), nl,
+    !.
+
+% select_max_value_move(+ValuesMoves, +MaxValue, -Move)
+% Selects a move with the given maximum value
+select_max_value_move(ValuesMoves, MaxValue, Move) :-
+    random_member(MaxValue-Move, ValuesMoves),
+    !.
+
+% value(+GameState, +EvaluatedPlayer, -Value)
+% Evaluate the value of the game state for the given player
+value([Board, Player], EvaluatedPlayer, Value) :-
+    evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage),
+    closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, Distance),
+    Value is Advantage - Distance,
+    write(Value).
+
+
+% evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
+% Evaluate the advantage of the game state for the given player
+evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage) :-
+    count_player_pieces([Board, Player], EvaluatedPlayer, NumPlayerPieces),
+    other_player(EvaluatedPlayer, Opponent),    
+    count_player_pieces([Board, Player], Opponent, NumOpponentPieces),
+    Advantage is NumPlayerPieces - NumOpponentPieces,
+    write(Advantage).
+
+% count_player_pieces(+GameState, +EvaluatedPlayer, -NumPieces)
+% Count the number of pieces for the given player in the game state
+count_player_pieces([Board, Player], EvaluatedPlayer, NumPieces) :-
+    findall(Piece, (member(position(Piece, _), Board), piece_info(Piece, EvaluatedPlayer, _)), PlayerPieces),
+    length(PlayerPieces, NumPieces).
+
+% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
+% Find the piece of the given player that is closest to the opponent's pentagon
+closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, MinDistance) :-
+    findall(Position, (member(position(Piece, Position), piece_info(Piece, EvaluatedPlayer, _)), Board), PlayerPiecesPositions), % Get all the pieces of the player
+    other_player(EvaluatedPlayer, Opponent),
+    member(position(OpponentPiece, OpponentPiecePosition), Board), 
+    piece_info(OpponentPiece, Opponent, pentagon), % Get the opponent's pentagon
+    setof(Distance, (member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
+    
 
 % Game Over Logic
 
