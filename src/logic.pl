@@ -83,13 +83,14 @@ choose_move([Board, Player], Player, 2, Move) :-
     sort(ValuesMoves, SortedValuesMoves), % Sort the list of values and moves
     reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
     ReversedValuesMoves = [MaxValue-_|_],
-    select_max_value_move(ReversedValuesMoves, MaxValue, Move).
+    select_max_value_move(ReversedValuesMoves, MaxValue, Move), % Select a move with the highest value
     !.
 
 % select_max_value_move(+ValuesMoves, +MaxValue, -Move)
 % Selects a move with the given maximum value
-select_max_value_move(ValuesMoves, MaxValue, Move) :-
-    random_member(MaxValue-Move, ValuesMoves),
+select_max_value_move(ValuesMoves, MaxValue, Move) :- 
+    findall(M, (member(MaxValue-M, ValuesMoves)), Moves), % Get all the moves with the given maximum value
+    random_member(Move, Moves), % Choose a random move with the given maximum value
     !.
 
 % value(+GameState, +EvaluatedPlayer, -Value)
