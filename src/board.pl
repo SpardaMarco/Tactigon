@@ -38,8 +38,7 @@ board(initial,
 % This predicate is true if there is a tile at coordinates X, Y on the board.
 tile(X, Y) :- 
     line(Y, MinX, MaxX),
-    between(MinX, MaxX, X),
-    !.
+    between(MinX, MaxX, X).
 
 % gold_tile(+X, +Y)
 % Gold tiles on the board
@@ -97,6 +96,7 @@ piece_print_info(pentagon, red, 'RP').
 % All pieces
 piece(Piece) :- piece_info(Piece, _, _).
 
+
 % adjacent(tile(+X, +Y), tile(+X1, +Y1))
 % Rules for adjacent tiles
 adjacent(tile(X, Y), tile(X1, Y)) :- 
@@ -104,31 +104,34 @@ adjacent(tile(X, Y), tile(X1, Y)) :-
     tile(X1, Y),
     DIFX is X - X1,
     abs(DIFX, ABSX),
-    ABSX == 1,
-    !.
+    ABSX == 1.
+
 adjacent(tile(X, Y), tile(X, Y1)) :- 
     tile(X, Y),
     tile(X, Y1),
     DIFY is Y - Y1,
     abs(DIFY, ABSY),
-    ABSY == 1,
-    !.
+    ABSY == 1.
+
 adjacent(tile(X, Y), tile(X1, Y1)) :-
     1 is X mod 2,
+    tile(X, Y),
+    tile(X1, Y1),
     DIFY is Y - Y1,
     DIFY == 1,
     DIFX is X1 - X,
     abs(DIFX, ABSX),
-    ABSX == 1,
-    !.
+    ABSX == 1.
+
 adjacent(tile(X, Y), tile(X1, Y1)) :-
     0 is X mod 2,
+    tile(X, Y),
+    tile(X1, Y1),
     DIFY is Y - Y1,
     DIFY == -1,
     DIFX is X1 - X,
     abs(DIFX, ABSX),
-    ABSX == 1,
-    !.
+    ABSX == 1.
 
 % evenq_to_cube(+X, +Y, -cube(+Q, +R, +S))
 % Transforms the even-q coordinates X, Y into cube coordinates Q, R, S
