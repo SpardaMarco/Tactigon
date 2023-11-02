@@ -18,7 +18,7 @@ read_number_input_aux(X,ACC):-
 read_number_input_aux(X,X).
 
 % get_option(+MinValue,+MaxValue,+Objective,-Option)
-% Unifies Option with the value given by user input between Min and Max given an objective
+% Given an objective, unifies Option with the value given by user input between Min and Max
 get_option(MinValue, MaxValue, Objective, Option):-
     format('~a between ~d and ~d: ', [Objective, MinValue, MaxValue]),
     repeat,
@@ -27,7 +27,7 @@ get_option(MinValue, MaxValue, Objective, Option):-
     !.
 
 % get_move_input(-Coordinates)
-% Read a move from user input in format X-Y, and unifies it with Coordinates
+% Reads a move from user input, in format X-Y, and unifies it with Coordinates
 get_move_input(Coordinates) :-
     repeat,
     read_number_input(X),
