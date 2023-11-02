@@ -62,7 +62,7 @@ play :-
 % valid_moves(+GameState, +Player, -Moves)
 % Gets all the valid moves for the current player
 valid_moves([Board, Player], Player, Moves) :-
-    findall(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
+    setof(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
 
 % choose_move(+GameState, +Player, +Level, -Move).
 % Chooses a move for the bot random player
