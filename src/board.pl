@@ -41,7 +41,7 @@ tile(X, Y) :-
     between(MinX, MaxX, X).
 
 % gold_tile(+X, +Y)
-% Gold tiles on the board
+% Position of the gold tiles on the board
 gold_tile(1, 5).
 gold_tile(5, 5).
 
@@ -98,7 +98,7 @@ piece(Piece) :- piece_info(Piece, _, _).
 
 
 % adjacent(tile(+X, +Y), tile(?X1, ?Y1))
-% Rules for adjacent tiles
+% Unifies tile(X1, Y1) with a tile adjacent to tile(X, Y)
 adjacent(tile(X, Y), tile(X1, Y)) :- 
     tile(X, Y),
     tile(X1, Y),
