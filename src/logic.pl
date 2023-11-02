@@ -54,7 +54,7 @@ valid_move_bfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     N > 0,
     N1 is N - 1,
     findall(X-Y, adjacent(tile(CX, CY), tile(X, Y)), AdjacentTiles),
-    member(tile(CX1, CY1), AdjacentTiles),
+    member(CX1-CY1, AdjacentTiles),
     \+ member(position(_, tile(CX1, CY1)), Board),  % Check if the tile is empty  
     valid_move_bfs([Board, Player], N1, Piece, OX-OY-DX-DY, CX1-CY1).
 

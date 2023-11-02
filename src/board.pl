@@ -97,7 +97,7 @@ piece_print_info(pentagon, red, 'RP').
 piece(Piece) :- piece_info(Piece, _, _).
 
 
-% adjacent(tile(+X, +Y), tile(+X1, +Y1))
+% adjacent(tile(+X, +Y), tile(?X1, ?Y1))
 % Rules for adjacent tiles
 adjacent(tile(X, Y), tile(X1, Y)) :- 
     tile(X, Y),
