@@ -46,7 +46,6 @@ game_loop(GameState) :-
 % Processes the turn of the current player
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     difficulty(Player, 0),
-    % valid_moves([Board, Player], Moves),
     !,
     repeat,
     ask_move([Board, Player], OX-OY-DX-DY),
@@ -58,14 +57,3 @@ process_turn([Board, Player], [NewBoard, NewPlayer]) :-
 % Starts the game
 play :-
     menu.
-
-% valid_moves(+GameState, +Player, -Moves)
-% Gets all the valid moves for the current player
-valid_moves([Board, Player], Player, Moves) :-
-    setof(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
-
-% choose_move(+GameState, +Player, +Level, -Move).
-% Chooses a move for the bot random player
-choose_move([Board, Player], Player, 1, Move) :-
-    valid_moves([Board, Player], Player, Moves),
-    random_member(Move, Moves).

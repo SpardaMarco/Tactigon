@@ -63,6 +63,17 @@ move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     append(Board2, [position(Piece, tile(DX, DY))], NewBoard),
     other_player(Player, NewPlayer).
 
+% valid_moves(+GameState, +Player, -Moves)
+% Gets all the valid moves for the current player
+valid_moves([Board, Player], Player, Moves) :-
+    setof(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
+
+% choose_move(+GameState, +Player, +Level, -Move).
+% Chooses a move for the bot random player
+choose_move([Board, Player], Player, 1, Move) :-
+    valid_moves([Board, Player], Player, Moves),
+    random_member(Move, Moves).
+
 % Game Over Logic
 
 % game_over(+GameState, -Winner)
