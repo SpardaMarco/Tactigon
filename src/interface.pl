@@ -87,17 +87,23 @@ ask_move([_, Player], OX-OY-DX-DY) :-
     get_move_input(DX-DY),
     !.
 
+ask_move_input(Player, Context, X-Y) :-
+    format('Player ~w, please choose a piece to move (X-Y): ', [Player]),
+    get_move_input(X-Y),
+    !.
+
+
 % change_settings/0
 % Asks the user for new settings
 change_settings :-
     ask_difficulty(cian),
-    get_option(0, 2, 'Select an option', CianDifficulty),
+    get_option(0, 2, 'Select an option', 'option', CianDifficulty),
     process_difficulty_option(cian, CianDifficulty),
     ask_difficulty(red),
-    get_option(0, 2, 'Select an option', RedDifficulty),
+    get_option(0, 2, 'Select an option', 'option', RedDifficulty),
     process_difficulty_option(red, RedDifficulty),
     ask_rules,
-    get_option(0, 3, 'Select an option', Rules),
+    get_option(0, 3, 'Select an option', 'option', Rules),
     process_rules_option(Rules).
 
 % process_difficulty_option(+Player, +NewDifficulty)
