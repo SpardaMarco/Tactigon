@@ -12,9 +12,8 @@ menu :-
 % processMenuOption(+Option)
 % Processes the user input
 processMenuOption(1) :-
-    board(initial, Board),
-    findall(P, player(P), Players),
-    random_member(Player, Players),
+    board_size(_, Size),
+    initial_state(Size, [Board, Player]),
     game_loop([Board, Player]),
     !.
 
@@ -58,7 +57,7 @@ process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     difficulty(Player, Difficulty),
     !,
     choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY),
-    move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
+    move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 
 % play/0
