@@ -145,3 +145,144 @@ board(final,
 ).
 ```
 *board.pl*
+
+### Game State Visualization
+
+### Move Validation and Execution
+
+The game runs in a loop where each iteration corresponds to a turn. The only stop condition of this loop is the victory of one of the players:
+```prolog
+% game_loop(+GameState)
+% Main game loop
+game_loop(GameState) :-
+    game_over(GameState, Winner),
+    !,
+    display_game(GameState),
+    display_winner(Winner),
+    !,
+    menu.
+
+game_loop(GameState) :-
+    display_game(GameState),
+    process_turn(GameState, NewGameState),
+    !,
+    game_loop(NewGameState).
+```
+*main.pl*
+
+The process_turn predicate is responsible for processing the turn of the current player. If the current player is human, this predicate will ask for a move, validate it and make the move if it is valid. If the current player is a bot, this predicate will choose a valid move (depending on the difficulty level) and make the move:
+```prolog
+% process_turn(+GameState, -NewGameState)
+% Processes the turn of the current player
+process_turn([Board, Player], [NewBoard, NewPlayer]) :-
+    difficulty(Player, 0),
+    !,
+    repeat,
+    ask_move([Board, Player], OX-OY-DX-DY),
+    validate_move([Board, Player], OX-OY-DX-DY),
+    move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
+    !.
+
+process_turn([Board, Player], [NewBoard, NewPlayer]) :-
+    difficulty(Player, Difficulty),
+    !,
+    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY),
+    move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
+    !.
+
+```
+*main.pl*
+
+The ask_move predicate is responsible for asking the user for a move and reading the input.
+
+The validate_move predicate is responsible for validating the move. It starts by checking if the chosen piece is, in fact, on the board and if it belongs to the current player:
+```prolog
+% validate_move(+GameState, +Move)
+% Checks if a move is valid
+validate_move([Board, Player], OX-OY-DX-DY) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    piece_info(Piece, Player, _),
+    valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY).
+``` 
+*logic.pl*
+
+After that, the predicate valid_move_for_piece is called to check if the move is valid for the chosen piece. This predicate starts by checking the type of the chosen piece, in order to determine the maximum number of spaces that the piece can move:
+```prolog
+% valid_move_for_piece(+GameState, +Piece, +Move)
+% Checks if a move is valid for a particular piece
+valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
+    piece_info(Piece, _, Type), % Get the type of the piece
+    movement(Type, N),  % N is the maximum number of steps for this type of piece
+    valid_move_dfs([Board, Player], N, Piece, DX-DY, OX-OY).
+```
+*logic.pl*
+
+If the advanced rule 2 is applied, the predicate valid_move_for_piece will also check if the chosen piece is on a gold tile, in order to determine if the piece can move an additional space:
+```prolog
+valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
+    rules(2),
+    gold_tile(OX, OY),
+    piece_info(Piece, _, Type),
+    movement(Type, N),  % N is the maximum number of steps for this type of piece
+    N1 is N + 1, % N1 is the maximum number of steps increases by 1 because of additional rule 2 when piece is on a gold tile
+    valid_move_dfs([Board, Player], N1, Piece, OX-OY-DX-DY, OX-OY).
+```
+*logic.pl*
+
+After determining the maximum number of spaces that the piece can move, the predicate valid_move_dfs is called to check if the move is valid for the chosen piece. This predicate uses a depth-first search algorithm to check if the move is valid. The depth-first search algorithm starts by checking if the chosen piece can move to the destination tile in a single step. If it can, there are two possible outcomes: the destination tile is empty or the destination tile is occupied by an opposing piece. If the destination tile is empty, the move is valid. If the destination tile is occupied by an opposing piece, the move is valid if the combat is possible (i.e., the current player's piece can capture the opposing piece or the combat ends in a draw where both pieces are captured).
+
+```prolog
+% valid_move_dfs(+GameState, +N, +Piece, +DestinationTile, +CurrentTile)
+% Checks if a move is valid for a particular piece using DFS, being N the number of steps left to take
+valid_move_dfs([Board, _], N, _, DX-DY, CX-CY) :-
+    N > 0,
+    adjacent(tile(CX, CY), tile(DX, DY)),
+    \+ member(position(_, tile(DX, DY)), Board). 
+
+valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
+    N > 0,
+    adjacent(tile(CX, CY), tile(DX, DY)),
+    member(position(Defender, tile(DX, DY)), Board),  % Check if the destination tile is occupied
+    other_player(Player, DefenderPlayer), 
+    piece_info(Defender, DefenderPlayer, DefenderType),  % Check if the destination tile is occupied by an opponent's piece
+    piece_info(Piece, Player, Type), 
+    combat(Type, DefenderType, _). % Check if the piece can attack the opponent's piece.
+```
+*logic.pl*
+
+If the chosen piece can't move to the destination tile in a single step, the depth-first search algorithm will move to an adjacent tile of the current piece and call itself recursively, decreasing the number of steps left to take by 1. This process will continue until the maximum number of spaces that the piece can move is reached (when N is equal to 0) and all possible moves are checked, in depth. Whitin the recursive calls, if there are still moves left to take, the algorithm will check if the destination tile is adjacent to the current tile and if it is empty or occupied by an opposing piece. If the destination tile is empty, the move is valid. If the destination tile is occupied by an opposing piece and the combat is possible the move is valid. If there are no more moves left to take, the move is invalid. As, by default, pieces can't jump other pieces, the algorithm will only make the recursive call if the chosen adjacent tile is empty:
+```prolog
+valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
+    N > 0,
+    N1 is N - 1,
+    findall(X-Y, adjacent(tile(CX, CY), tile(X, Y)), AdjacentTiles),
+    member(CX1-CY1, AdjacentTiles), 
+    \+ member(position(_, tile(CX1, CY1)), Board),
+    valid_move_dfs([Board, Player], N1, Piece, DX-DY, CX1-CY1).
+```
+*logic.pl*
+
+If the advanced rule 1 is applied, the predicate valid_move_dfs will also check if the chosen piece is a square, in order to determine if the piece can jump over other pieces (except for other squares):
+```prolog
+% Special case for the square piece when additional rule 1 is enabled.
+% Square pieces can jump over other pieces, except for opposing squares. 
+% A "jumped" tile still counts towards the piece's move limit
+valid_move_dfs([Board, Player], N, Player-square-Id, DX-DY, CX-CY) :-
+    rules(1),
+    N > 0,
+    N1 is N - 1,
+    other_player(Player, Opponent),
+    findall(X-Y, adjacent(tile(CX, CY), tile(X, Y)), AdjacentTiles), 
+    member(CX1-CY1, AdjacentTiles), 
+    \+ member(position(Opponent-square-_, tile(CX1, CY1)), Board),
+    valid_move_dfs([Board, Player], N1, Player-square-Id, DX-DY, CX1-CY1).
+```
+*logic.pl*
+
+### List of Valid Moves
+
+### End of Game
+
+### Game State Evaluation
+
+### Computer Plays
