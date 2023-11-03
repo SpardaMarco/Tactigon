@@ -87,3 +87,14 @@ print_n(N, S) :-
     N1 is N-1,
     !,
     print_n(N1, S).
+
+% number_of_digits(+N,-D)
+% Unifies D with the number of digits of N
+number_of_digits(N, D) :-
+    N < 10,
+    !,
+    D is 1.
+number_of_digits(N, D) :-
+    N1 is N // 10,
+    number_of_digits(N1, D1),
+    D is D1 + 1.

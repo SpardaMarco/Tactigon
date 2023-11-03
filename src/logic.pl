@@ -3,6 +3,21 @@
 :- ensure_loaded('board.pl').
 :- ensure_loaded('settings.pl').
 
+% initial_state(+Size, -GameState)
+% Returns the initial game state for a given board size
+initial_state(Size, [Board, Player]) :-
+    board_size(_, Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
+
+initial_state(Size, [Board, Player]) :-
+    create_new_board(Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
 
 % ----------------------------- %
 %         MOVEMENT LOGIC        %

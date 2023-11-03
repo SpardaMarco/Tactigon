@@ -12,9 +12,8 @@ menu :-
 % processMenuOption(+Option)
 % Processes the user input
 processMenuOption(1) :-
-    board(initial, Board),
-    findall(P, player(P), Players),
-    random_member(Player, Players),
+    board_size(_, Size),
+    initial_state(Size, [Board, Player]),
     game_loop([Board, Player]),
     !.
 
