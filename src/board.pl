@@ -76,7 +76,6 @@ player(red).
 other_player(cian, red).
 other_player(red, cian).
 
-
 % piece_info(+Piece, -Player, -Type)
 % Unifies Player and Type with the player and type of Piece
 piece_info(Player-Type-_, Player, Type).

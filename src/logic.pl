@@ -1,6 +1,7 @@
 :- use_module(library(lists)).
 :- use_module(library(random)).
 :- ensure_loaded('board.pl').
+:- ensure_loaded('settings.pl').
 
 % Movement Logic
 
@@ -13,6 +14,14 @@ validate_move([Board, Player], OX-OY-DX-DY) :-
 
 % valid_move_for_piece(+GameState, +Piece, +Move)
 % Checks if a move is valid for a particular piece
+valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
+    rules(2),
+    gold_tile(OX, OY),
+    piece_info(Piece, _, Type), % Get the type of the piece
+    movement(Type, N),  % N is the maximum number of steps for this type of piece
+    N1 is N + 1,
+    valid_move_dfs([Board, Player], N1, Piece, OX-OY-DX-DY, OX-OY).
+
 valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
     piece_info(Piece, _, Type), % Get the type of the piece
     movement(Type, N),  % N is the maximum number of steps for this type of piece
@@ -33,6 +42,16 @@ valid_move_dfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     piece_info(Defender, DefenderPlayer, DefenderType),  % Check if the destination tile is occupied by an opponent's piece
     piece_info(Piece, Player, Type), 
     combat(Type, DefenderType, _). % Check if the piece can attack the opponent's piece.
+
+valid_move_dfs([Board, Player], N, Player-square-_, OX-OY-DX-DY, CX-CY) :-
+    rules(1),
+    N > 0,
+    N1 is N - 1,
+    other_player(Player, Opponent),
+    findall(X-Y, adjacent(tile(CX, CY), tile(X, Y)), AdjacentTiles), % Get all the adjacent tiles
+    member(CX1-CY1, AdjacentTiles), % Get an adjacent tile
+    \+ member(position(Opponent-square-_, tile(CX1, CY1)), Board),  % Check if the tile is empty  
+    valid_move_dfs([Board, Player], N1, Piece, OX-OY-DX-DY, CX1-CY1).
 
 valid_move_dfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     N > 0,

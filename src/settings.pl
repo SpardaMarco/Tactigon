@@ -5,6 +5,6 @@ difficulty(cian, 1).
 difficulty(red, 2).
 
 % rules(?Rules)
-% Gets the rules of the game. 0 for no additional rules, 1 for the first additional rule, 2 for the second additional rule and 3 for both additional rules
+% Gets the rules of the game. 0 for no additional rules, 1 for the first additional rule, 2 for the second additional rules.
 :- dynamic rules/1.
 rules(0).
