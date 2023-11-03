@@ -326,6 +326,30 @@ valid_moves([_, Player], Opponent, Moves) :-
 
 ### End of Game
 
+The predicate game_over is responsible for checking if the game is over and, in case it is, returning the winner. At first, this predicate checks if the current player's pentagon was captured. If so, the other_player predicate is used to get the opponent player that will be returned as the winner. If the current player's pentagon wasn't captured, the predicate will check if the opponent's pentagon was captured. If so, the current player is returned as the winner:
+```prolog
+% game_over(+GameState, -Winner)
+% Checks if the game is over and returns the winner
+game_over([Board, Player], Winner) :-
+    \+ member(position(Player-pentagon-_, tile(_, _)), Board),
+    other_player(Player, Winner).
+
+game_over([Board, Player], Player) :-
+    other_player(Player, Opponent),
+    \+ member(position(Opponent-pentagon-_, tile(_, _)), Board).
+```
+*logic.pl*
+
+If neither of the pentagons was captured, the predicate will check if all gold tiles are occupied by the current player. If so, and as this predicate is called in the beginning of the game loop, this means that the current player was occupying both gold tiles at the end of the opponent's turn, and so the current player is returned as the winner:
+```prolog
+game_over([Board, Player], Player) :-
+    findall(X-Y, gold_tile(X, Y), GoldTiles),
+    findall(X-Y, (member(position(Player-_-_, tile(X, Y)), Board), member(X-Y, GoldTiles)), GoldTilesWithPlayer),
+    length(GoldTiles, N),
+    length(GoldTilesWithPlayer, N).
+```
+*logic.pl*
+
 ### Game State Evaluation
 
 ### Computer Plays
