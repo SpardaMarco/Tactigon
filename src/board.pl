@@ -1,7 +1,7 @@
 :- ensure_loaded('utils.pl').
     
 % board(+State, -Board)
-% Unifies Board with the board at the current State
+% Unifies Board with the board at the current State for starting a game or for demonstrating different board states
 board(initial, 
 [
     position(cian-circle-1, tile(3, 0)),
@@ -33,6 +33,31 @@ board(initial,
 ]
 ).
 
+board(intermediate, 
+[
+    position(cian-circle-1, tile(4, 5)),
+    position(cian-square-1, tile(5, 7)),
+    position(cian-triangle-1, tile(5,2)),
+    position(cian-circle-3, tile(5, 1)),
+    position(cian-pentagon-1, tile(3, 0)),
+    position(cian-triangle-3, tile(0, 5)),
+    position(cian-circle-6, tile(5, 5)),
+    position(red-circle-1, tile(3, 2)),
+    position(red-square-1, tile(5, 6)),
+    position(red-pentagon-1, tile(3, 5)),
+    position(red-circle-4, tile(2, 3)),
+    position(red-triangle-1, tile(3, 9)),
+    position(red-circle-6, tile(1, 5))
+]
+).
+
+board(final, 
+[
+    position(cian-circle-1, tile(5, 1)),
+    position(cian-pentagon-1, tile(5, 6)),
+    position(red-circle-1, tile(3, 5))
+]
+).
 
 % tile(+X, +Y)
 % This predicate is true if there is a tile at coordinates X, Y on the board.
@@ -60,7 +85,7 @@ line(9, 1, 5).
 line(10, 3, 3).
 
 % movement(+Piece, -Movement)
-% Unifies Movement with the movement of Piece
+% Unifies Movement with the number of tiles that Piece can move in one turn (Excluding additional movements from the gold tiles)
 movement(circle, 1).
 movement(triangle, 3).
 movement(square, 4).
@@ -72,17 +97,16 @@ player(cian).
 player(red).
 
 % other_player(+Player, -OtherPlayer)
-% Unifies OtherPlayer with the other player
+% Unifies OtherPlayer with the opponent of Player
 other_player(cian, red).
 other_player(red, cian).
 
-
 % piece_info(+Piece, -Player, -Type)
-% Unifies Player and Type with the player and type of Piece
+% Unifies Player and Type with the player and type of a Piece
 piece_info(Player-Type-_, Player, Type).
 
 % piece_print_info(+Type, +Player, -PrintType)
-% Unifies PrintType with the type of Piece to be printed
+% Unifies PrintType with the text of Piece to be printed in the board
 piece_print_info(circle, cian, 'CC').
 piece_print_info(triangle, cian, 'CT').
 piece_print_info(square, cian, 'CS').
@@ -93,12 +117,14 @@ piece_print_info(square, red, 'RS').
 piece_print_info(pentagon, red, 'RP').
 
 % piece(+Piece)
-% All pieces
+% Defines all pieces
 piece(Piece) :- piece_info(Piece, _, _).
 
-
 % adjacent(tile(+X, +Y), tile(?X1, ?Y1))
-% Unifies tile(X1, Y1) with a tile adjacent to tile(X, Y)
+% Unifies tile(X1, Y1) with a tile adjacent to tile(X, Y) or verifies if tile(X1, Y1) is adjacent to tile(X, Y)
+% Adjacent tiles are tiles that are next to each other, including diagonally. The vector for adjacent tiles is
+% [1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, -1] when X is odd and
+% [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1] when X is even 
 adjacent(tile(X, Y), tile(X1, Y)) :- 
     tile(X, Y),
     tile(X1, Y),
@@ -133,7 +159,7 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
     abs(DIFX, ABSX),
     ABSX == 1.
 
-% evenq_to_cube(+X, +Y, -cube(+Q, +R, +S))
+% evenq_to_cube(+X, +Y, -cube(-Q, -R, -S))
 % Transforms the even-q coordinates X, Y into cube coordinates Q, R, S
 evenq_to_cube(X, Y, cube(Q, R, S)) :-
     Q is X,
@@ -142,7 +168,7 @@ evenq_to_cube(X, Y, cube(Q, R, S)) :-
     !.
 
 % distance(tile(+X, +Y), tile(+X1, +Y1), -Distance)
-% Unifies Distance with the distance between tile(X, Y) and tile(X1, Y1)
+% Unifies Distance with the calculated distance between tile(X, Y) and tile(X1, Y1)
 distance(tile(X, Y), tile(X1, Y1), Distance) :-
     evenq_to_cube(X, Y, cube(QC, RC, SC)),
     evenq_to_cube(X1, Y1, cube(QC1, RC1, SC1)),
@@ -155,33 +181,32 @@ find_piece(Board, Piece, tile(X, Y)) :-
     member(position(Piece, tile(X, Y)), Board).
 
 % tile_to_string(+Board, +Tile, -String)
-% Unifies String with the string representation of Tile on Board
+% Unifies String with the string representation of Tile on Board, none if there is no piece on Tile
 tile_to_string(Board, tile(X, Y), String) :-
     find_piece(Board, Piece, tile(X, Y)),
     piece_info(Piece, Player, Type),
     piece_print_info(Type, Player, String),
     !.
 
-tile_to_string(Board, tile(X, Y), String) :-
+tile_to_string(_, tile(X, Y), String) :-
     gold_tile(X, Y),
     String = 'GT',
     !.
 
 tile_to_string(_, tile(_, _), 'none').
 
-
 % ------------------------- %
 %         DRAW BOARD        %
 % ------------------------- %
 
-% draw_header
+% draw_header\0
 % Draws the header of the board
 draw_header :-
     write('   |X |X0|X1|X2|X3|X4|X5|X6|  |'), nl,
     write('---|--------------------------|---'), nl,
     write('Y  |            __            |Y'), nl.
 
-% draw_footer
+% draw_footer\0
 % Draws the footer of the board
 draw_footer :-
     write('---|--------------------------|---'), nl,
@@ -189,14 +214,14 @@ draw_footer :-
 
 % draw_board(+Board)
 % Draws the board
-draw_board([Board, _]) :-
+draw_board(Board) :-
     MaxY is 2*10 + 1,
     draw_header,
     draw_board_aux(Board, 0, MaxY),
     draw_footer.
 
 % draw_board_aux(+Board, +Y, +MaxY)
-% Draws the board from Y to MaxY, with the borders, assuming each "line" is 2 lines
+% Draws the board from Y to MaxY, with the borders, assuming each "line of the real board" is 2 lines of the printed board
 draw_board_aux(_, Y, MaxY) :- 
     Y > MaxY,
     !.
@@ -228,17 +253,17 @@ draw_board_line(Board, Y) :-
     nl.
 
 % build_line(+Board, +CurrentY, +Y, -Line)
-% Builds a Line, which is a list of draw objects that represent the line Y of the board
+% Builds a Line, which is a list of draw predicates that represent a part of line Y of the board
 build_line(Board, CurrentY, Y, Line) :-
     build_line(Board, CurrentY, Y, 0, [draw(start, _)], Line).
 
 % build_line(+Board, +CurrentY, +Y, +X, +Aux, -Line)
-% Builds a Line, which is a list of draw objects that represent the line Y of the board
-build_line(_, _, _, 7, Aux, List) :-
-    append(Aux, [draw(none, _)], List),
+% Builds a Line, which is a list of draw predicates that represent a part of line Y of the board
+build_line(_, _, _, 7, Aux, Line) :-
+    append(Aux, [draw(none, _)], Line),
     !.
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     \+ tile(X, CurrentY),
     1 is Y mod 2,
     1 is X mod 2,
@@ -247,10 +272,9 @@ build_line(Board, CurrentY, Y, X, Aux, List) :-
     append(Aux, [draw(startBottom, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     \+ tile(X, CurrentY),
     0 is Y mod 2,
     0 is X mod 2,
@@ -259,16 +283,16 @@ build_line(Board, CurrentY, Y, X, Aux, List) :-
     append(Aux, [draw(bottom, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     \+ tile(X, CurrentY),
     append(Aux, [draw(none, _)], Aux1),
     X1 is X + 1,
     !,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     0 is Y mod 2,
     0 is X mod 2,
     !,
@@ -276,33 +300,33 @@ build_line(Board, CurrentY, Y, X, Aux, List) :-
     (tile(X, PY) -> append(Aux, [draw(bottom, _)], Aux1);
     append(Aux, [draw(startBottom, _)], Aux1)),
     X1 is X + 1,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     0 is Y mod 2,
     1 is X mod 2,
     !,
     tile_to_string(Board, tile(X, CurrentY), String),
     append(Aux, [draw(top, String)], Aux1),
     X1 is X + 1,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     1 is Y mod 2,
     0 is X mod 2,
     !,
     tile_to_string(Board, tile(X, CurrentY), String),
     append(Aux, [draw(top, String)], Aux1),
     X1 is X + 1,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
-build_line(Board, CurrentY, Y, X, Aux, List) :-
+build_line(Board, CurrentY, Y, X, Aux, Line) :-
     1 is Y mod 2,
     1 is X mod 2,
     !,
     append(Aux, [draw(bottom, _)], Aux1),
     X1 is X + 1,
-    build_line(Board, CurrentY, Y, X1, Aux1, List).
+    build_line(Board, CurrentY, Y, X1, Aux1, Line).
 
 % draw_hexagons(+Line, +LastState)
 % Draws the hexagons of a line, and updates the LastState

@@ -1,4 +1,3 @@
-:- use_module(library(random)).
 :- ensure_loaded('interface.pl').
 :- ensure_loaded('board.pl').
 :- ensure_loaded('logic.pl').
@@ -7,7 +6,7 @@
 % Displays the menu and processes the user input. 1 to start the game, 2 to change settings and 3 to exit
 menu :-
     display_menu,
-    get_option(1, 3, 'Select', Option),
+    get_option(1, 3, 'Select an option', 'option', Option),
     processMenuOption(Option).
 
 % processMenuOption(+Option)
@@ -19,6 +18,7 @@ processMenuOption(1) :-
 
 processMenuOption(2) :-
     change_settings,
+    !,
     menu.
 
 processMenuOption(3) :-
