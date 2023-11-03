@@ -3,6 +3,7 @@
 :- ensure_loaded('board.pl').
 :- ensure_loaded('settings.pl').
 
+
 % ----------------------------- %
 %         MOVEMENT LOGIC        %
 % ----------------------------- %
@@ -123,10 +124,14 @@ select_value_move(ValuesMoves, Value, Move) :-
 
 % value(+GameState, +EvaluatedPlayer, -Value)
 % Evaluate the value of the game state for the EvaluatedPlayer
-value([Board, _], EvaluatedPlayer, Value) :-
-    evaluate_advantage([Board, _], EvaluatedPlayer, Advantage),
-    closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, Distance),
-    Value is Advantage - Distance.
+value([Board, Player], EvaluatedPlayer, Value) :-
+    evaluate_advantage([Board, _], EvaluatedPlayer, Advantage), % Get the advantage of the game state for the EvaluatedPlayer
+    closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, DistanceToOpponentPentagon), % Get the distance between the EvaluatedPlayer's closest piece and the opponent's pentagon
+    other_player(EvaluatedPlayer, Opponent), % Get the opponent of the EvaluatedPlayer
+    closest_to_opponent_pentagon([Board, _], Opponent, DistanceToPlayerPentagon), % Get the distance between the opponent's closest piece and the EvaluatedPlayer's pentagon
+    Distance is DistanceToPlayerPentagon - DistanceToOpponentPentagon,
+    wins_game([Board, Player], EvaluatedPlayer, Wins), % Check if the EvaluatedPlayer wins the game
+    Value is Wins + Advantage + Distance. 
 
 % evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
 % Evaluate the advantage of the game state for the EvaluatedPlayer
@@ -136,11 +141,27 @@ evaluate_advantage([Board, _], EvaluatedPlayer, Advantage) :-
     count_player_pieces([Board, _], Opponent, NumOpponentPieces),
     Advantage is NumPlayerPieces - NumOpponentPieces.
 
+% wins_game(+GameState, +EvaluatedPlayer, -Value)
+% Checks if the EvaluatedPlayer wins the game and returns the value of the game state
+wins_game([Board, Player], EvaluatedPlayer, Value) :-
+    game_over([Board, Player], EvaluatedPlayer),
+    Value is 1000,
+    !.
+
+wins_game([_, _], _, 0).
+
 % count_player_pieces(+GameState, +EvaluatedPlayer, -NumPieces)
 % Count the number of pieces for the given player in the EvaluatedPlayer
 count_player_pieces([Board, _], EvaluatedPlayer, NumPieces) :-
     findall(_, (member(position(EvaluatedPlayer-_-_, _), Board)), PlayerPieces),
     length(PlayerPieces, NumPieces).
+
+closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
+    other_player(EvaluatedPlayer, Opponent),
+    \+ member(position(Opponent-pentagon-_, _), Board).
+
+closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
+    \+ member(position(EvaluatedPlayer-_-_, _), Board).
 
 % closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
 % Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
@@ -149,6 +170,7 @@ closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, MinDistance) :-
     other_player(EvaluatedPlayer, Opponent),
     member(position(Opponent-pentagon-_, OpponentPiecePosition), Board), 
     setof(Distance, Position^PlayerPiecesPositions^OpponentPiecePosition^(member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
+
 
 % ------------------------------ %
 %         GAME OVER LOGIC        %
@@ -169,6 +191,7 @@ game_over([Board, Player], Player) :-
     findall(X-Y, (member(position(Player-_-_, tile(X, Y)), Board), member(X-Y, GoldTiles)), GoldTilesWithPlayer),
     length(GoldTiles, N),
     length(GoldTilesWithPlayer, N).
+
 
 % --------------------------- %
 %         COMBAT LOGIC        %

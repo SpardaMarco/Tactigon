@@ -116,10 +116,6 @@ piece_print_info(triangle, red, 'RT').
 piece_print_info(square, red, 'RS').
 piece_print_info(pentagon, red, 'RP').
 
-% piece(+Piece)
-% Defines all pieces
-piece(Piece) :- piece_info(Piece, _, _).
-
 % adjacent(tile(+X, +Y), tile(?X1, ?Y1))
 % Unifies tile(X1, Y1) with a tile adjacent to tile(X, Y) or verifies if tile(X1, Y1) is adjacent to tile(X, Y)
 % Adjacent tiles are tiles that are next to each other, including diagonally. The vector for adjacent tiles is
@@ -194,6 +190,7 @@ tile_to_string(_, tile(X, Y), String) :-
     !.
 
 tile_to_string(_, tile(_, _), 'none').
+
 
 % ------------------------- %
 %         DRAW BOARD        %
