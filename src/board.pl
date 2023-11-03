@@ -33,6 +33,32 @@ board(initial,
 ]
 ).
 
+board(intermediate, 
+[
+    position(cian-circle-1, tile(4, 5)),
+    position(cian-square-1, tile(5, 7)),
+    position(cian-triangle-1, tile(5,2)),
+    position(cian-circle-3, tile(5, 1)),
+    position(cian-pentagon-1, tile(3, 0)),
+    position(cian-triangle-3, tile(0, 5)),
+    position(cian-circle-6, tile(5, 5)),
+    position(red-circle-1, tile(3, 2)),
+    position(red-square-1, tile(5, 6)),
+    position(red-pentagon-1, tile(3, 5)),
+    position(red-circle-4, tile(2, 3)),
+    position(red-triangle-1, tile(3, 9)),
+    position(red-circle-6, tile(1, 5))
+]
+).
+
+board(final, 
+[
+    position(cian-circle-1, tile(5, 1)),
+    position(cian-pentagon-1, tile(5, 6)),
+    position(red-circle-1, tile(3, 5))
+]
+).
+
 
 % tile(+X, +Y)
 % This predicate is true if there is a tile at coordinates X, Y on the board.
@@ -94,7 +120,6 @@ piece_print_info(pentagon, red, 'RP').
 % piece(+Piece)
 % All pieces
 piece(Piece) :- piece_info(Piece, _, _).
-
 
 % adjacent(tile(+X, +Y), tile(?X1, ?Y1))
 % Unifies tile(X1, Y1) with a tile adjacent to tile(X, Y)

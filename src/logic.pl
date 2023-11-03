@@ -61,7 +61,6 @@ valid_move_dfs([Board, Player], N, Piece, OX-OY-DX-DY, CX-CY) :-
     \+ member(position(_, tile(CX1, CY1)), Board),  % Check if the tile is empty  
     valid_move_dfs([Board, Player], N1, Piece, OX-OY-DX-DY, CX1-CY1).
 
-
 % move(+GameState, +Move, -NewGameState)
 % Moves a piece from one tile to another
 move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
@@ -85,8 +84,8 @@ move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
 
 % valid_moves(+GameState, +Player, -Moves)
 % Gets all the valid moves for the current player
-valid_moves([Board, Player], Player, Moves) :-
-    setof(OX-OY-DX-DY, validate_move([Board, Player], OX-OY-DX-DY), Moves).
+valid_moves(GameState, Player, Moves) :-
+    setof(OX-OY-DX-DY, GameState^validate_move(GameState, OX-OY-DX-DY), Moves).
 
 % choose_move(+GameState, +Player, +Level, -Move).
 % Chooses a move for the difficulty level 1 (random) bot
@@ -119,7 +118,6 @@ value([Board, Player], EvaluatedPlayer, Value) :-
     closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, Distance),
     Value is Advantage - Distance.
 
-
 % evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
 % Evaluate the advantage of the game state for the given player
 evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage) :-
@@ -131,18 +129,17 @@ evaluate_advantage([Board, Player], EvaluatedPlayer, Advantage) :-
 % count_player_pieces(+GameState, +EvaluatedPlayer, -NumPieces)
 % Count the number of pieces for the given player in the game state
 count_player_pieces([Board, Player], EvaluatedPlayer, NumPieces) :-
-    findall(Piece, (member(position(Piece, _), Board), piece_info(Piece, EvaluatedPlayer, _)), PlayerPieces),
+    findall(Piece, (member(position(EvaluatedPlayer-_-_, _), Board)), PlayerPieces),
     length(PlayerPieces, NumPieces).
 
 % closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
 % Find the piece of the given player that is closest to the opponent's pentagon
 closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, MinDistance) :-
-    findall(Position, (member(position(Piece, Position), Board), piece_info(Piece, EvaluatedPlayer, _)), PlayerPiecesPositions), % Get all the pieces of the player
+    findall(Position, (member(position(EvaluatedPlayer-_-_, Position), Board)), PlayerPiecesPositions), % Get all the pieces of the player
     other_player(EvaluatedPlayer, Opponent),
-    member(position(OpponentPiece, OpponentPiecePosition), Board), 
-    piece_info(OpponentPiece, Opponent, pentagon), % Get the opponent's pentagon
-    setof(Distance, (member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
-    
+    member(position(Opponent-pentagon-_, OpponentPiecePosition), Board), 
+    setof(Distance, Position^PlayerPiecesPositions^OpponentPiecePosition^(member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
+
 
 % Game Over Logic
 
@@ -151,6 +148,10 @@ closest_to_opponent_pentagon([Board, Player], EvaluatedPlayer, MinDistance) :-
 game_over([Board, Player], Winner) :-
     \+ member(position(Player-pentagon-_, tile(_, _)), Board),
     other_player(Player, Winner).
+
+game_over([Board, Player], Player) :-
+    other_player(Player, Opponent),
+    \+ member(position(Opponent-pentagon-_, tile(_, _)), Board).
 
 game_over([Board, Player], Player) :-
     findall(X-Y, gold_tile(X, Y), GoldTiles),
