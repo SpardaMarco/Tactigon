@@ -44,11 +44,11 @@ game_loop(GameState) :-
 % process_turn(+GameState, -NewGameState)
 % Processes the turn of the current player
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    difficulty(Player, 0),
+    difficulty(Player, 3),
     !,
     repeat,
-    ask_move([Board, Player], OX-OY-DX-DY),
-    validate_move([Board, Player], OX-OY-DX-DY),
+    invalid_move,
+    get_move([Board, Player], OX-OY-DX-DY),
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 

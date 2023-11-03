@@ -70,6 +70,12 @@ valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
 % move(+GameState, +Move, -NewGameState)
 % Moves a piece from one tile to another, and returns the new game state
 move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+    validate_move([Board, Player], OX-OY-DX-DY),
+    move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]).
+
+% move_aux(+GameState, +Move, -NewGameState)
+% Moves a piece from one tile to another, and returns the new game state
+move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     member(position(Piece, tile(OX, OY)), Board),
     member(position(Defender, tile(DX, DY)), Board),
     piece_info(Piece, _, Type),
@@ -80,7 +86,7 @@ move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     delete(Board1, position(Defender, tile(DX, DY)), NewBoard),
     other_player(Player, NewPlayer).
 
-move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     member(position(Piece, tile(OX, OY)), Board),
     !,
     delete(Board, position(Piece, tile(OX, OY)), Board1),

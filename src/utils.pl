@@ -54,7 +54,7 @@ read_number_del_aux(X, Del, ACC):-
     get_code(_),
     !,
     ACC1 is 10 * ACC + (C - 48),
-    read_number_input_aux(X, ACC1).
+    read_number_del_aux(X, Del, ACC1).
 read_number_del_aux(X, Del, X):-
     peek_code(Del), % 10 is ASCII code for \n
     get_code(_),
@@ -67,8 +67,8 @@ read_number_del_aux(_, _, _) :-
 % get_move_input(-Coordinates)
 % Reads a move from user input, in format X-Y, and unifies it with Coordinates
 get_move_input(Coordinates) :-
-    read_number_del_aux(X, 45),
-    read_number_del_aux(Y, 10),
+    read_number_del(X, 45),
+    read_number_del(Y, 10),
     Coordinates = X-Y,
     !.
 
