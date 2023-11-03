@@ -306,6 +306,24 @@ move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
 
 ### List of Valid Moves
 
+The predicate valid_moves is responsible for returning a list of all possible moves for a player in the current game state. This predicate checks all the moves for each piece of the player in the current game state, using the validate_move predicate, and returns a list with all the valid moves. This list is obtained by using the setof predicate, as we don't want to have repeated moves in the list:
+```prolog
+% valid_moves(+GameState, +Player, -Moves)
+% Gets all the valid moves for the Player in the current game state
+valid_moves([Board, Player], Player, Moves) :-
+    setof(OX-OY-DX-DY, [Board, Player]^validate_move([Board, Player], OX-OY-DX-DY), Moves).
+```
+*logic.pl*
+
+If this predicate is called for the player that is not the current player, it will return an empty list:
+```prolog
+% No moves available for the player that is not the current player
+valid_moves([_, Player], Opponent, Moves) :-
+    Opponent \= Player,
+    Moves = [].
+```
+*logic.pl*
+
 ### End of Game
 
 ### Game State Evaluation
