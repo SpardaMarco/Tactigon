@@ -66,7 +66,7 @@ For more information about the game rules, please consult the [How to Play](http
 
 **Board -** The board is represented by a list of Positions. Each Position is represented by 2 elements: a Piece and the Tile where the Piece is located. Each Tile consists of the coordinates (X, Y) on the board. The minimum and maximum values for the X coordinate is defined for each line, and there can only be tiles inside those limits. Finally, the board also has Gold Tiles, which are represented by the corresponding (X, Y) coordinates on the board with the predicate gold_tile.
 
-**Player -** The game has only two players, cian and red, represented by the corresponding atoms. Cian moves first, and after each turn, the current player is changed to the other player using the other_play predicate.
+**Player -** The game has only two players, cian and red, represented by the corresponding atoms. The first player to move is chosen randomly, and after each turn, the current player is changed to the other player using the other_play predicate.
 
 The **GameState** is represented by a list with the **Board** and the **Player** at a given time in the game. The **GameState** does not contain a list of pieces that each player has captured, since they are removed from the board and can't be used for the rest of the game.
 
