@@ -76,26 +76,27 @@ ask_rules :-
     write('3 - Both Additional Rules'), nl,
     write('4 - None'), nl.
 
-% get_valid_move(+GameState, -Move)
-% Gets a valid move from the user
+% invalid_move/0
+% Displays an error message for an invalid move when it is the second time this predicate is called because of a failed move
+invalid_move.
+invalid_move :-
+    write('Invalid move!'), nl,
+    fail.
+
+% get_move(+GameState, -Move)
+% Gets a move from the user
 % if OX-OY = DX-DY, then the move is cancelled, and the user is asked for a new move
-% if the move is invalid, the predicate should fail and go to the next get_valid_move/2 predicate
-get_valid_move([Board, Player], OX-OY-DX-DY) :-
+get_move([Board, Player], OX-OY-DX-DY) :-
     ask_move([Board, Player], AOX-AOY-ADX-ADY),
     check_cancel_move([Board, Player], AOX-AOY-ADX-ADY, OX-OY-DX-DY),
-    validate_move([Board, Player], OX-OY-DX-DY),
     !.
-
-get_valid_move([Board, Player], OX-OY-DX-DY) :-
-    write('Invalid move!'), nl,
-    get_valid_move([Board, Player], OX-OY-DX-DY).
 
 % check_cancel_move(+GameState, +Move, -NewMove)
 % Checks if the move is cancelled
 check_cancel_move([Board, Player], AOX-AOY-AOX-AOY, Move) :-
     write('Move cancelled!'), nl,
     !,
-    get_valid_move([Board, Player], Move).
+    get_move([Board, Player], Move).
 
 check_cancel_move(_, Move, Move) :-
     !.
