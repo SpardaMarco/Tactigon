@@ -47,8 +47,7 @@ process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     difficulty(Player, 0),
     !,
     repeat,
-    ask_move([Board, Player], OX-OY-DX-DY),
-    validate_move([Board, Player], OX-OY-DX-DY),
+    get_valid_move([Board, Player], OX-OY-DX-DY),
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 

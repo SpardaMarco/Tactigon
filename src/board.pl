@@ -294,8 +294,10 @@ build_line(Board, CurrentY, Y, X, Aux, Line) :-
     0 is X mod 2,
     !,
     PY is CurrentY - 1,
-    (tile(X, PY) -> append(Aux, [draw(bottom, _)], Aux1);
-    append(Aux, [draw(startBottom, _)], Aux1)),
+    (
+        tile(X, PY) -> append(Aux, [draw(bottom, _)], Aux1) ;
+        append(Aux, [draw(startBottom, _)], Aux1)
+        ),
     X1 is X + 1,
     build_line(Board, CurrentY, Y, X1, Aux1, Line).
 

@@ -76,22 +76,46 @@ ask_rules :-
     write('2 - Additional Rule 2'), nl,
     write('3 - Both Additional Rules'), nl.
 
+% get_valid_move(+GameState, -Move)
+% Gets a valid move from the user
+% if OX-OY = DX-DY, then the move is cancelled, and the user is asked for a new move
+% if the move is invalid, the predicate should fail and go to the next get_valid_move/2 predicate
+get_valid_move([Board, Player], OX-OY-DX-DY) :-
+    ask_move([Board, Player], AOX-AOY-ADX-ADY),
+    check_cancel_move([Board, Player], AOX-AOY-ADX-ADY, OX-OY-DX-DY),
+    validate_move([Board, Player], OX-OY-DX-DY),
+    !.
+
+get_valid_move([Board, Player], OX-OY-DX-DY) :-
+    write('Invalid move!'), nl,
+    get_valid_move([Board, Player], OX-OY-DX-DY).
+
+% check_cancel_move(+GameState, +Move, -NewMove)
+% Checks if the move is cancelled
+check_cancel_move([Board, Player], AOX-AOY-AOX-AOY, Move) :-
+    write('Move cancelled!'), nl,
+    !,
+    get_valid_move([Board, Player], Move).
+
+check_cancel_move(_, Move, Move) :-
+    !.
+
 % ask_move(+GameState, -Move)
 % Asks the player for a move
 ask_move([_, Player], OX-OY-DX-DY) :-
-    format('Player ~w, please choose a piece to move (X-Y): ', [Player]),
-    repeat,
-    get_move_input(OX-OY),
-    format('Player ~w, please where to move the piece (X-Y): ', [Player]),
-    repeat,
-    get_move_input(DX-DY),
+    ask_move_input(Player, 'Player ~w, please choose a piece to move (X-Y): ', OX-OY),
+    format('To cancel the move, please enter ~d-~d.', [OX, OY]), nl,
+    ask_move_input(Player, 'Player ~w, please where to move the piece (X-Y): ', DX-DY),
     !.
 
 ask_move_input(Player, Context, X-Y) :-
-    format('Player ~w, please choose a piece to move (X-Y): ', [Player]),
+    format(Context, [Player]),
     get_move_input(X-Y),
     !.
 
+ask_move_input(Player, Context, X-Y) :-
+    write('Invalid input!'), nl,
+    ask_move_input(Player, Context, X-Y).
 
 % change_settings/0
 % Asks the user for new settings
