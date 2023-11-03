@@ -279,6 +279,31 @@ valid_move_dfs([Board, Player], N, Player-square-Id, DX-DY, CX-CY) :-
 ```
 *logic.pl*
 
+At last, if a move is valid, the move predicate is called to make the move. This predicate starts by checking if the player's piece is on the board, in the given origin coordinates. After that, it checks if there is an opposing piece on the destination tile. If there is and if the combat results in a draw, both pieces are removed from the board and the current player is changed to the opponent player (using the other_player predicate). If the combat results in a victory for the player's piece or if there isn't an opposing piece on the destination tile, both tiles are cleared, the player's piece is moved to the destination tile and the current player is changed to the opponent player (using the other_player predicate). The new game state, including the updated board and the new current player, is returned:
+```prolog
+% move(+GameState, +Move, -NewGameState)
+% Moves a piece from one tile to another, and returns the new game state
+move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    member(position(Defender, tile(DX, DY)), Board),
+    piece_info(Piece, _, Type),
+    piece_info(Defender, _, DefenderType),
+    combat(Type, DefenderType, none),
+    !,
+    delete(Board, position(Piece, tile(OX, OY)), Board1),
+    delete(Board1, position(Defender, tile(DX, DY)), NewBoard),
+    other_player(Player, NewPlayer).
+
+move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
+    member(position(Piece, tile(OX, OY)), Board),
+    !,
+    delete(Board, position(Piece, tile(OX, OY)), Board1),
+    delete(Board1, position(_, tile(DX, DY)), Board2),
+    append(Board2, [position(Piece, tile(DX, DY))], NewBoard),
+    other_player(Player, NewPlayer).
+```
+*logic.pl*
+
 ### List of Valid Moves
 
 ### End of Game
