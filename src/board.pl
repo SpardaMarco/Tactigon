@@ -186,7 +186,7 @@ tile_to_string(Board, tile(X, Y), String) :-
     piece_print_info(Type, Player, String),
     !.
 
-tile_to_string(Board, tile(X, Y), String) :-
+tile_to_string(_, tile(X, Y), String) :-
     gold_tile(X, Y),
     String = 'GT',
     !.

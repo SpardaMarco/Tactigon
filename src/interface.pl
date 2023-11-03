@@ -77,7 +77,7 @@ ask_rules :-
 
 % ask_move(+GameState, -Move)
 % Asks the player for a move
-ask_move([Board, Player], OX-OY-DX-DY) :-
+ask_move([_, Player], OX-OY-DX-DY) :-
     format('Player ~w, please choose a piece to move (X-Y): ', [Player]),
     repeat,
     get_move_input(OX-OY),
