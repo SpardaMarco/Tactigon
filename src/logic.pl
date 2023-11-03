@@ -3,7 +3,9 @@
 :- ensure_loaded('board.pl').
 :- ensure_loaded('settings.pl').
 
-% Movement Logic
+% ----------------------------- %
+%         MOVEMENT LOGIC        %
+% ----------------------------- %
 
 % validate_move(+GameState, +Move)
 % Checks if a move is valid
@@ -28,7 +30,7 @@ valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
     valid_move_dfs([Board, Player], N, Piece, DX-DY, OX-OY).
 
 % valid_move_dfs(+GameState, +N, +Piece, +DestinationTile, +CurrentTile)
-% Checks if a move is valid for a particular piece using DFS
+% Checks if a move is valid for a particular piece using DFS, being N the number of steps left to take
 valid_move_dfs([Board, _], N, _, DX-DY, CX-CY) :-
     N > 0,
     adjacent(tile(CX, CY), tile(DX, DY)),
@@ -43,7 +45,9 @@ valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
     piece_info(Piece, Player, Type), 
     combat(Type, DefenderType, _). % Check if the piece can attack the opponent's piece.
 
-% Special case for the square piece when additional rule 1 is enabled
+% Special case for the square piece when additional rule 1 is enabled.
+% Square pieces can jump over other pieces, except for opposing squares. 
+% A "jumped" tile still counts towards the piece's move limit
 valid_move_dfs([Board, Player], N, Player-square-Id, DX-DY, CX-CY) :-
     rules(1),
     N > 0,
@@ -63,7 +67,7 @@ valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
     valid_move_dfs([Board, Player], N1, Piece, DX-DY, CX1-CY1).
 
 % move(+GameState, +Move, -NewGameState)
-% Moves a piece from one tile to another
+% Moves a piece from one tile to another, and returns the new game state
 move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     member(position(Piece, tile(OX, OY)), Board),
     member(position(Defender, tile(DX, DY)), Board),
@@ -84,10 +88,11 @@ move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     other_player(Player, NewPlayer).
 
 % valid_moves(+GameState, +Player, -Moves)
-% Gets all the valid moves for the current player
+% Gets all the valid moves for the Player in the current game state
 valid_moves([Board, Player], Player, Moves) :-
     setof(OX-OY-DX-DY, [Board, Player]^validate_move([Board, Player], OX-OY-DX-DY), Moves).
 
+% No moves available for the player that is not the current player
 valid_moves([_, Player], Opponent, Moves) :-
     Opponent \= Player,
     Moves = [].
@@ -106,25 +111,25 @@ choose_move([Board, Player], Player, 2, Move) :-
     sort(ValuesMoves, SortedValuesMoves), % Sort the list of values and moves
     reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
     ReversedValuesMoves = [MaxValue-_|_],
-    select_max_value_move(ReversedValuesMoves, MaxValue, Move), % Select a move with the highest value
+    select_value_move(ReversedValuesMoves, MaxValue, Move), % Select a move with the highest value
     !.
 
-% select_max_value_move(+ValuesMoves, +MaxValue, -Move)
-% Selects a move with the given maximum value
-select_max_value_move(ValuesMoves, MaxValue, Move) :- 
-    findall(M, (member(MaxValue-M, ValuesMoves)), Moves), % Get all the moves with the given maximum value
+% select_value_move(+ValuesMoves, +Value, -Move)
+% Selects a random move with the given value
+select_value_move(ValuesMoves, Value, Move) :- 
+    findall(M, (member(Value-M, ValuesMoves)), Moves), % Get all the moves with the given maximum value
     random_member(Move, Moves), % Choose a random move with the given maximum value
     !.
 
 % value(+GameState, +EvaluatedPlayer, -Value)
-% Evaluate the value of the game state for the given player
+% Evaluate the value of the game state for the EvaluatedPlayer
 value([Board, _], EvaluatedPlayer, Value) :-
     evaluate_advantage([Board, _], EvaluatedPlayer, Advantage),
     closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, Distance),
     Value is Advantage - Distance.
 
 % evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
-% Evaluate the advantage of the game state for the given player
+% Evaluate the advantage of the game state for the EvaluatedPlayer
 evaluate_advantage([Board, _], EvaluatedPlayer, Advantage) :-
     count_player_pieces([Board, _], EvaluatedPlayer, NumPlayerPieces),
     other_player(EvaluatedPlayer, Opponent),    
@@ -132,21 +137,22 @@ evaluate_advantage([Board, _], EvaluatedPlayer, Advantage) :-
     Advantage is NumPlayerPieces - NumOpponentPieces.
 
 % count_player_pieces(+GameState, +EvaluatedPlayer, -NumPieces)
-% Count the number of pieces for the given player in the game state
+% Count the number of pieces for the given player in the EvaluatedPlayer
 count_player_pieces([Board, _], EvaluatedPlayer, NumPieces) :-
     findall(_, (member(position(EvaluatedPlayer-_-_, _), Board)), PlayerPieces),
     length(PlayerPieces, NumPieces).
 
 % closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
-% Find the piece of the given player that is closest to the opponent's pentagon
+% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, MinDistance) :-
     findall(Position, (member(position(EvaluatedPlayer-_-_, Position), Board)), PlayerPiecesPositions), % Get all the pieces of the player
     other_player(EvaluatedPlayer, Opponent),
     member(position(Opponent-pentagon-_, OpponentPiecePosition), Board), 
     setof(Distance, Position^PlayerPiecesPositions^OpponentPiecePosition^(member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
 
-
-% Game Over Logic
+% ------------------------------ %
+%         GAME OVER LOGIC        %
+% ------------------------------ %
 
 % game_over(+GameState, -Winner)
 % Checks if the game is over and returns the winner
@@ -164,8 +170,9 @@ game_over([Board, Player], Player) :-
     length(GoldTiles, N),
     length(GoldTilesWithPlayer, N).
 
-
-% Combat Logic
+% --------------------------- %
+%         COMBAT LOGIC        %
+% --------------------------- %
 
 % combat(+Attacker, +Defender, -Winner)
 % Returns the winner of a combat between an Attacker and  a Defender

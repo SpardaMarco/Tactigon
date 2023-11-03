@@ -1,4 +1,3 @@
-:- use_module(library(random)).
 :- ensure_loaded('interface.pl').
 :- ensure_loaded('board.pl').
 :- ensure_loaded('logic.pl').

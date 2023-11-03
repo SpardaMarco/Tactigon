@@ -34,9 +34,10 @@ display_menu :-
 % display_game(+GameState)
 % Displays the game and all its elements
 display_game(GameState) :-
+    GameState = [Board, _],
     clear_screen,
     nl,
-    draw_board(GameState),
+    draw_board(Board),
     display_legend,
     nl,nl.
 

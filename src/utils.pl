@@ -34,7 +34,6 @@ get_move_input(Coordinates) :-
     read_number_input(Y),
     Coordinates = X-Y.
 
-
 % abs(+X,-Y)
 % Unifies Y with the absolute value of X
 abs(X,X) :- X >= 0, !.
