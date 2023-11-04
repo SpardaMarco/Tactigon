@@ -203,7 +203,7 @@ get_option(MinValue, MaxValue, Objective, Error, Option):-
 ```
 *utils.pl*
 
-If the user chooses to start a new game, the game will start with the defined settings. The predicate **initial_state/2** is responsible for creating the initial game state, based on the board size given.
+If the user chooses to start a new game, the game will start with the defined settings. The predicate **initial_state/2** is responsible for creating the initial game state, based on the given board size.
 ```prolog
 % initial_state(+Size, -GameState)
 % Returns the initial game state for a given board size
@@ -223,7 +223,9 @@ initial_state(Size, [Board, Player]) :-
 ```
 *logic.pl*
 
-This predicate verifies if the board size is the current board size defined in the settings. If so, the initial game state is created using the initial board. If not, a new board is created using the **create_new_board/1** predicate and the initial game state is created using the new board. E.G.:
+This predicate verifies if the board size is the current board size defined in the settings. If so, the initial game state is created using the initial board. If not, a new board is created using the **create_new_board/1** predicate and the initial game state is created using the new board.
+
+*E.g.:*
 ```prolog
 % create_new_board(+Size)
 % Creates a new board with Size lines, with a default number of columns for that size
@@ -427,7 +429,7 @@ draw_hexagon(_, draw(startBottom, _)) :-
 ```
 *board.pl*
 
-During the game, the move input is validated using the **ask_move/2** predicate, which asks the user for a two pairs of coordinates and reads the input. During the process, there are error messages and a possibility to cancel the move input. To get the coordinates, the predicate **get_move_input/1** is used, which asks for coordinates in the format X-Y and reads the input:
+During the game, the move input is validated using the **ask_move/2** predicate, which asks the user for two pairs of coordinates and reads the input. During the process, there are error messages and a possibility to cancel the move input. To get the coordinates, the predicate **get_move_input/1** is used, which asks for coordinates in the format X-Y and reads the input:
 ```prolog
 % get_move_input(-Coordinates)
 % Reads a move from user input, in format X-Y, and unifies it with Coordinates
@@ -438,13 +440,13 @@ get_move_input(X-Y) :-
 ```
 *utils.pl*
 
-The **read_number_del/2** predicate reads a number till a delimiter is found.
+The **read_number_del/2** predicate reads a number until a delimiter is found.
 
 If the user chooses to change settings, the user is asked to select:
-1. **Board Size** (11 lines, 7 columns; 13 lines, 9 columns; 15 lines, 11 columns);
-2. **Cian Difficulty** (Bot (Random), Bot (Greedy), Human);
-3. **Red Difficulty** (Bot (Random), Bot (Greedy), Human);
-4. **Advanced Rules** (Advanced Rule 1, Advanced Rule 2, Both Advanced Rules, None).
+1. **Board Size** 
+2. **Cian Difficulty** 
+3. **Red Difficulty** 
+4. **Advanced Rules** 
 ```terminal
 Select an option between 1 and 3: 2
 Board Size:
@@ -770,18 +772,22 @@ Value is Wins + Advantage + Distance.
 
 ### Computer Plays
 
+
+
 ## Conclusions
 
-Tactigon was implemented successfully, with all the required features in prolog. 
-The game can be played by two human players or by a human player against a computer player or computer player vs computer player. The computer player can play in two different difficulty levels: random and greedy. The game can be played in three different board sizes: 11 lines, 7 columns; 13 lines, 9 columns; 15 lines, 11 columns. 
-The game can also be played with two advanced rules: square pieces can jump over other pieces, except for opposing squares; pieces that start a turn on a gold tile can move an additional space on that turn. 
+Tactigon was implemented successfully, with all the required features in Prolog. 
+The game can be played by two human players, by a human player against a computer player or computer player vs computer player. The computer player can play in two different difficulty levels: random and greedy. The game can be played in three different board sizes: 11 lines, 7 columns; 13 lines, 9 columns; and 15 lines, 11 columns. 
+The game can also be played with two advanced rules: square pieces can jump over other pieces, except for opposing squares; and pieces that start a turn on a gold tile can move an additional space on that turn. 
 Each interaction with the user is robust.
 
-During the development of this project, the most complex part was the implementation of the 
+During the development of this project, there were two components that stood out as the most challenging: the implementation of the predicates to draw the board and the implementation of the predicates to validate, execute and choose moves. By implementing these components, we were able to learn more about Prolog and its logic programming paradigm, and to consolidate the concepts developed in theoretical and practical classes.
 
 ## Bibliography
 
-The following bibliography was used to help develop this project:
+The set up and the rules of the game were consulted in **Tactigon's official website** and in the **Tactigon's rulebook**:
 - [Tactigon - How to Play](https://tactigongame.com/how-to-play/) 
 - [Tactigon - Rulebook](https://online.fliphtml5.com/hvuax/bvzo/)
+
+For more information about hexagonal grids and hexagonal coordinates, the **Red Blob Games** website was consulted:
 - [Hexagonal Grids - Red Blob Games](https://www.redblobgames.com/grids/hexagons/)
