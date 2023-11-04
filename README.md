@@ -185,6 +185,8 @@ processMenuOption(3) :-
     clear_screen,
     !.
 ```
+*main.pl*
+
 The input is validated using the **get_option/5** predicate, which asks the user for an option between two values and reads the input. If the input is valid, the predicate returns the input. If not, the predicate asks the user for a new input. The request and the error messages are defined by the *Objective* and *Error* elements, respectively:
 ```prolog
 % get_option(+MinValue, +MaxValue, +Objective, +Error, -Option)
@@ -199,6 +201,7 @@ get_option(MinValue, MaxValue, Objective, Error, Option):-
     format('Invalid ~a.~n', [Error]),
     get_option(MinValue, MaxValue, Objective, Error, Option).
 ```
+*utils.pl*
 
 If the user chooses to start a new game, the game will start with the defined settings. The predicate **initial_state/2** is responsible for creating the initial game state, based on the board size given.
 ```prolog
@@ -221,7 +224,6 @@ initial_state(Size, [Board, Player]) :-
 *logic.pl*
 
 This predicate verifies if the board size is the current board size defined in the settings. If so, the initial game state is created using the initial board. If not, a new board is created using the **create_new_board/1** predicate and the initial game state is created using the new board. E.G.:
-
 ```prolog
 % create_new_board(+Size)
 % Creates a new board with Size lines, with a default number of columns for that size
@@ -278,7 +280,6 @@ The **draw_board/1** predicate divides the board in 3 parts:
 1. **Header** - Displays the header of the board, with the column numbers.
 2. **Board** - Displays the board and pieces of the board, with the lines numbers.
 3. **Footer** - Displays the footer of the board, with the column numbers.
-
 ```prolog
 % draw_board(+Board)
 % Draws the board
@@ -444,7 +445,6 @@ If the user chooses to change settings, the user is asked to select:
 2. **Cian Difficulty** (Bot (Random), Bot (Greedy), Human);
 3. **Red Difficulty** (Bot (Random), Bot (Greedy), Human);
 4. **Advanced Rules** (Advanced Rule 1, Advanced Rule 2, Both Advanced Rules, None).
-
 ```terminal
 Select an option between 1 and 3: 2
 Board Size:
