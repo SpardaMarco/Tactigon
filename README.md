@@ -64,13 +64,13 @@ For more information about the game rules, please consult the [How to Play](http
 
 ### Internal Game State Representation
 
-**Board -** The board is represented by a list of Positions. Each Position is represented by 2 elements: a Piece and the Tile where the Piece is located. Each Tile consists of the coordinates (X, Y) on the board. The minimum and maximum values for the X coordinate is defined for each line, and there can only be tiles inside those limits. Finally, the board also has Gold Tiles, which are represented by the corresponding (X, Y) coordinates on the board with the predicate gold_tile.
+**Board -** The board is represented by a list of *Positions*. Each *Position* is represented by 2 elements: a *Piece* and the *Tile* where the *Piece* is located. Each *Tile* consists of the coordinates (X, Y) on the board. The minimum and maximum values for the X coordinate is defined for each line, and there can only be tiles inside those limits. Finally, the board also has *Gold Tiles*, which are represented by the corresponding (X, Y) coordinates on the board with the predicate **gold_tile/2**.
 
-**Player -** The game has only two players, cian and red, represented by the corresponding atoms. The first player to move is chosen randomly, and after each turn, the current player is changed to the other player using the other_play predicate.
+**Player -** The game has only two players, cian and red, represented by the corresponding atoms. The first player to move is chosen randomly, and after each turn, the current player is changed to the other player using the **other_player/2** predicate.
 
-The **GameState** is represented by a list with the **Board** and the **Player** at a given time in the game. The **GameState** does not contain a list of pieces that each player has captured, since they are removed from the board and can't be used for the rest of the game.
+The **GameState** is represented by a list with the **Board** and the current **Player** at a given time in the game. The **GameState** does not contain a list of pieces that each player has captured, since they are removed from the board and can't be used for the rest of the game.
 
-This is the representation of the board in the initial game state, where each piece is located in its starting position:
+This is the representation of the board in the **initial** game state, where each piece is located in its starting position:
 ```prolog
 % board(+State, -Board)
 % Unifies Board with the board at the current State for starting a game or for demonstrating different board states
@@ -107,7 +107,7 @@ board(initial,
 ```
 *board.pl*
 
-This is a possible representation of the board in an intermediate game state. The pieces are located in different positions than the initial game state, some of the pieces were captured, but no player has won yet, since both players still have their pentagon and the gold tiles ((1,5) and (5,1)) are not both occupied by the same player:
+This is a possible representation of the board in an **intermediate** game state. The pieces are located in different positions than the initial game state, some of the pieces were captured, but no player has won yet, since both players still have their pentagon and the gold tiles [(1,5) and (5,1)] are not both occupied by the same player:
 
 ```prolog
 % board(+State, -Board)
@@ -132,7 +132,7 @@ board(intermediate,
 ```
 *board.pl*
 
-And finally, a possible representation of the board in the final game state, where the cian player has won the game by capturing the red player's pentagon:
+And finally, a possible representation of the board in the **final** game state, where the cian player has won the game by capturing the red player's pentagon:
 ```prolog
 % board(+State, -Board)
 % Unifies Board with the board at the current State for starting a game or for demonstrating different board states
@@ -170,30 +170,29 @@ game_loop(GameState) :-
 ```
 *main.pl*
 
-The process_turn predicate is responsible for processing the turn of the current player. If the current player is human, this predicate will ask for a move, validate it and make the move if it is valid. If the current player is a bot, this predicate will choose a valid move (depending on the difficulty level) and make the move:
+The **process_turn/2** predicate is responsible for processing the turn of the current player. If the current player is human, this predicate will ask for a move, validate it and make the move if it is valid. If the chosen move is not valid, the **invalid_move/0** predicate prints a warning message in the terminal and the user is asked to choose another move (this is repeated until the user input is a valid move). If the current player is a bot, this predicate will choose a valid move (depending on the difficulty level) and make the move:
 ```prolog
 % process_turn(+GameState, -NewGameState)
 % Processes the turn of the current player
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    difficulty(Player, 0),
+    difficulty(Player, 3), % Human player
     !,
     repeat,
-    ask_move([Board, Player], OX-OY-DX-DY),
-    validate_move([Board, Player], OX-OY-DX-DY),
+    invalid_move, % Display invalid move message if the move is invalid
+    get_move([Board, Player], OX-OY-DX-DY), % Get move from user
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    difficulty(Player, Difficulty),
+    difficulty(Player, Difficulty), % Computer player
     !,
-    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY),
+    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY), % Get move from computer
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
-
 ```
 *main.pl*
 
-The ask_move predicate is responsible for asking the user for a move and reading the input.
+The **get_move/2** predicate is responsible for asking the user for a move and reading the input.
 
 The validate_move predicate is responsible for validating the move. It starts by checking if the chosen piece is, in fact, on the board and if it belongs to the current player:
 ```prolog
@@ -250,7 +249,7 @@ valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
 ```
 *logic.pl*
 
-If the chosen piece can't move to the destination tile in a single step, the depth-first search algorithm will move to an adjacent tile of the current piece and call itself recursively, decreasing the number of steps left to take by 1. This process will continue until the maximum number of spaces that the piece can move is reached (when N is equal to 0) and all possible moves are checked, in depth. Whitin the recursive calls, if there are still moves left to take, the algorithm will check if the destination tile is adjacent to the current tile and if it is empty or occupied by an opposing piece. If the destination tile is empty, the move is valid. If the destination tile is occupied by an opposing piece and the combat is possible the move is valid. If there are no more moves left to take, the move is invalid. As, by default, pieces can't jump other pieces, the algorithm will only make the recursive call if the chosen adjacent tile is empty:
+If the chosen piece can't move to the destination tile in a single step, the depth-first search algorithm will move to an adjacent tile of the current piece and call itself recursively, decreasing the number of steps left to take by 1. This process will continue until the maximum number of spaces that the piece can move is reached (when N is equal to 0) and all possible moves are checked, in depth. Within the recursive calls, if there are still moves left to take, the algorithm will check if the destination tile is adjacent to the current tile and if it is empty or occupied by an opposing piece. If the destination tile is empty, the move is valid. If the destination tile is occupied by an opposing piece and the combat is possible the move is valid. If there are no more moves left to take, the move is invalid. As, by default, pieces can't jump other pieces, the algorithm will only make the recursive call if the chosen adjacent tile is empty:
 ```prolog
 valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
     N > 0,
@@ -351,5 +350,7 @@ game_over([Board, Player], Player) :-
 *logic.pl*
 
 ### Game State Evaluation
+
+
 
 ### Computer Plays

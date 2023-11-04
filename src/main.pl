@@ -46,18 +46,18 @@ game_loop(GameState) :-
 % process_turn(+GameState, -NewGameState)
 % Processes the turn of the current player
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    difficulty(Player, 3),
+    difficulty(Player, 3), % Human player
     !,
     repeat,
-    invalid_move,
-    get_move([Board, Player], OX-OY-DX-DY),
+    invalid_move, % Display invalid move message if the move is invalid
+    get_move([Board, Player], OX-OY-DX-DY), % Get move from user
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
-    difficulty(Player, Difficulty),
+    difficulty(Player, Difficulty), % Computer player
     !,
-    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY),
+    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY), % Get move from computer
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 
