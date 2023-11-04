@@ -66,10 +66,9 @@ read_number_del_aux(_, _, _) :-
 
 % get_move_input(-Coordinates)
 % Reads a move from user input, in format X-Y, and unifies it with Coordinates
-get_move_input(Coordinates) :-
+get_move_input(X-Y) :-
     read_number_del(X, 45),
     read_number_del(Y, 10),
-    Coordinates = X-Y,
     !.
 
 % abs(+X,-Y)
