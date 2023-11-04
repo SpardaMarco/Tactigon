@@ -48,15 +48,15 @@ process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     difficulty(Player, 3), % Human player
     !,
     repeat,
-    invalid_move, % Display invalid move message if the move is invalid
-    get_move([Board, Player], OX-OY-DX-DY), % Get move from user
+    invalid_move, % Display an invalid move message if the move is invalid
+    get_move([Board, Player], OX-OY-DX-DY), % Get a move from the user
     move([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 
 process_turn([Board, Player], [NewBoard, NewPlayer]) :-
     difficulty(Player, Difficulty), % Computer player
     !,
-    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY),
+    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY), % Get a move from the computer
     move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
     !.
 

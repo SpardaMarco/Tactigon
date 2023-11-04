@@ -261,7 +261,7 @@ valid_move_dfs([Board, Player], N, Piece, DX-DY, CX-CY) :-
 ```
 *logic.pl*
 
-If the advanced rule 1 is applied, the predicate valid_move_dfs will also check if the chosen piece is a square, in order to determine if the piece can jump over other pieces (except for other squares):
+If the advanced rule 1 is applied, the predicate valid_move_dfs will also check if the chosen piece is a square, in order to determine if the piece can jump over other pieces (except for opposing squares):
 ```prolog
 % Special case for the square piece when additional rule 1 is enabled.
 % Square pieces can jump over other pieces, except for opposing squares. 

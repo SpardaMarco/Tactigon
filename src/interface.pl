@@ -62,10 +62,12 @@ display_gold_tiles :-
 % Displays the gold tiles positions in the board
 display_gold_tiles([]) :-
     nl.
-% If there is only 1 tile, no need to display the comma
+
+% If there is only 1 tile, there is no need to display the comma
 display_gold_tiles([X-Y]) :-
     format('(~d, ~d)', [X, Y]),
     !.
+
 display_gold_tiles([X-Y|T]) :-
     format('(~d, ~d)', [X, Y]),
     write(', '),
@@ -87,15 +89,15 @@ ask_difficulty(P) :-
     write('3 - Human'), nl.
 
 % ask_rules/0
-% Displays the additional rules options
+% Displays the advanced rules options
 ask_rules :-
-    write('Additional Rules:'), nl,
+    write('Advanced Rules:'), nl,
     write('1 - Square pieces can jump over other pieces, except for opposing squares. A "jumped" tile still counts towards the piece\'s move limit.'), nl,
     write('2 - Pieces that start a turn on a gold tile can move an additional space on that turn.'), nl,
     write('Options:'), nl,
-    write('1 - Additional Rule 1'), nl,
-    write('2 - Additional Rule 2'), nl,
-    write('3 - Both Additional Rules'), nl,
+    write('1 - Advanced Rule 1'), nl,
+    write('2 - Advanced Rule 2'), nl,
+    write('3 - Both Advanced Rules'), nl,
     write('4 - None'), nl.
 
 % invalid_move/0
@@ -107,7 +109,7 @@ invalid_move :-
 
 % get_move(+GameState, -Move)
 % Gets a move from the user
-% if OX-OY = DX-DY, then the move is cancelled, and the user is asked for a new move
+% If OX-OY = DX-DY, then the move is cancelled, and the user is asked for a new move
 get_move([Board, Player], OX-OY-DX-DY) :-
     ask_move([Board, Player], AOX-AOY-ADX-ADY),
     check_cancel_move([Board, Player], AOX-AOY-ADX-ADY, OX-OY-DX-DY),
@@ -173,7 +175,7 @@ process_difficulty_option(P, NewDifficulty) :-
     assert(difficulty(P, NewDifficulty)).
 
 % process_rules_option(+NewRules)
-% Processes the user input and changes the settings regarding the additional rules
+% Processes the user input and changes the settings regarding the advanced rules
 process_rules_option(NewRules) :-
     NewRules =:= 3,
     retract(rules(_)),
