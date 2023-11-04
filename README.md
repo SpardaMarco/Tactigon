@@ -570,7 +570,7 @@ After calling the **closest_to_opponent_pentagon/3** predicate for the evaluated
     Distance is DistanceToPlayerPentagon - DistanceToOpponentPentagon
     %(...)
 ```
-*logic.pl* (in **value/3** predicate)
+*logic.pl (in **value/3** predicate)*
 
 At last, the predicate **value/3** will call the **wins_game/3** predicate to check if the evaluated player wins the game in the current game state. This predicate will call the **game_over/2** predicate to check if the game is over and if the evaluated player is the winner. If so, the predicate will return a value of **1000**. If the game is not over yet, the predicate will return a value of **0**:
 ```prolog
@@ -591,6 +591,6 @@ Finally, the **value/3** predicate will sum the advantage, the distance and the 
     Value is Wins + Advantage + Distance.
     %(...)
 ```
-*logic.pl* (in **value/3** predicate)
+*logic.pl (in **value/3** predicate)*
 
 ### Computer Plays
