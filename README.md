@@ -456,7 +456,7 @@ move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
 
 ### List of Valid Moves
 
-The predicate valid_moves is responsible for returning a list of all possible moves for a player in the current game state. This predicate checks all the moves for each piece of the player in the current game state, using the validate_move predicate, and returns a list with all the valid moves. This list is obtained by using the setof predicate, as we don't want to have repeated moves in the list:
+The predicate **valid_moves/3** is responsible for returning a list of all possible moves for a player in the current game state. This predicate checks all the moves for each piece of the player in the current game state, using the **validate_move/3** predicate, and returns a list with all the valid moves. This list is obtained by using the **setof/3** predicate, as we don't want to have repeated moves in the list:
 ```prolog
 % valid_moves(+GameState, +Player, -Moves)
 % Gets all the valid moves for the Player in the current game state
@@ -476,7 +476,7 @@ valid_moves([_, Player], Opponent, Moves) :-
 
 ### End of Game
 
-The predicate game_over is responsible for checking if the game is over and, in case it is, returning the winner. At first, this predicate checks if the current player's pentagon was captured. If so, the other_player predicate is used to get the opponent player that will be returned as the winner. If the current player's pentagon wasn't captured, the predicate will check if the opponent's pentagon was captured. If so, the current player is returned as the winner:
+The predicate **game_over/2** is responsible for checking if the game is over and, in case it is, returning the winner. At first, this predicate checks if the current player's pentagon was captured. If so, the **other_player/2** predicate is used to get the opponent player that will be returned as the winner. If the current player's pentagon wasn't captured, the predicate will check if the opponent's pentagon was captured. If so, the current player is returned as the winner:
 ```prolog
 % game_over(+GameState, -Winner)
 % Checks if the game is over and returns the winner
