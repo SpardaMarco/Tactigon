@@ -96,7 +96,7 @@ move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]) :-
     member(position(Defender, tile(DX, DY)), Board),
     piece_info(Piece, _, Type),
     piece_info(Defender, _, DefenderType),
-    combat(Type, DefenderType, none), % Check if the piece can attack the opponent's piece
+    combat(Type, DefenderType, none), % Check if the combat results in a draw
     !,
     delete(Board, position(Piece, tile(OX, OY)), Board1),
     delete(Board1, position(Defender, tile(DX, DY)), NewBoard),
