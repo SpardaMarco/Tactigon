@@ -107,6 +107,10 @@ board(initial,
 ```
 *board.pl*
 
+![InitialBoard](img/initialBoard.png)
+
+Figure 2 - Initial Board
+
 This is a possible representation of the board in an **intermediate** game state. The pieces are located in different positions than the initial game state, some of the pieces were captured, but no player has won yet, since both players still have their pentagon and the gold tiles [(1,5) and (5,1)] are not both occupied by the same player:
 
 ```prolog
@@ -132,6 +136,10 @@ board(intermediate,
 ```
 *board.pl*
 
+![IntermediateBoard](img/intermediateBoard.png)
+
+Figure 3 - Intermediate Board
+
 And finally, a possible representation of the board in the **final** game state, where the cian player has won the game by capturing the red player's pentagon:
 ```prolog
 % board(+State, -Board)
@@ -145,6 +153,10 @@ board(final,
 ).
 ```
 *board.pl*
+
+![FinalBoard](img/finalBoard.png)
+
+Figure 4 - Final Board
 
 ### Game State Visualization
 In the main menu, the user can choose to start a new game, change settings or exit the game. 
