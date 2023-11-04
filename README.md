@@ -594,3 +594,19 @@ Value is Wins + Advantage + Distance.
 *logic.pl (in **value/3** predicate)*
 
 ### Computer Plays
+
+## Conclusions
+
+Tactigon was implemented successfully, with all the required features in prolog. 
+The game can be played by two human players or by a human player against a computer player or computer player vs computer player. The computer player can play in two different difficulty levels: random and greedy. The game can be played in three different board sizes: 11 lines, 7 columns; 13 lines, 9 columns; 15 lines, 11 columns. 
+The game can also be played with two advanced rules: square pieces can jump over other pieces, except for opposing squares; pieces that start a turn on a gold tile can move an additional space on that turn. 
+Each interaction with the user is robust.
+
+During the development of this project, the most complex part was the implementation of the 
+
+## Bibliography
+
+The following bibliography was used to help develop this project:
+- [Tactigon - How to Play](https://tactigongame.com/how-to-play/) 
+- [Tactigon - Rulebook](https://online.fliphtml5.com/hvuax/bvzo/)
+- [Hexagonal Grids - Red Blob Games](https://www.redblobgames.com/grids/hexagons/)
