@@ -165,7 +165,7 @@ adjacent(tile(X, Y), tile(X1, Y1)) :-
     ABSX == 1.
 
 % evenq_to_cube(+X, +Y, -cube(-Q, -R, -S))
-% Transforms the even-q coordinates X, Y into cube coordinates Q, R, S
+% Transforms the even-q coordinates (X, Y) into cube coordinates (Q, R, S)
 evenq_to_cube(X, Y, cube(Q, R, S)) :-
     Q is X,
     R is Y - (X + (X mod 2)) div 2,
@@ -200,6 +200,7 @@ tile_to_string(_, tile(X, Y), String) :-
 
 tile_to_string(_, tile(_, _), 'none').
 
+
 % ------------------------- %
 %         DRAW BOARD        %
 % ------------------------- %
@@ -210,6 +211,7 @@ draw_x_line :-
     board_size(X, Y),
     number_of_digits(Y, Digits),
     draw_x_line(X, Digits).
+
 draw_x_line(X, Digits) :-
     Y_Size is Digits + 1,
     print_n(Y_Size, ' '),
@@ -218,9 +220,10 @@ draw_x_line(X, Digits) :-
     write('  |'), nl.
 
 % draw_x_line_aux(+X, +CurrentX)
-% Draws the X coordinates of the board 
+% Helps drawing the X coordinates of the board 
 draw_x_line_aux(X, X) :-
     !.
+
 draw_x_line_aux(X, CurrentX) :-
     format('X~d|', [CurrentX]),
     NextX is CurrentX + 1,
@@ -276,7 +279,7 @@ draw_board(Board) :-
     draw_footer.
 
 % draw_board_aux(+Board, +Y, +MaxY)
-% Draws the board from Y to MaxY, with the borders, assuming each "line of the real board" is 2 lines of the printed board
+% Draws the board from Y to MaxY, including the borders, using 2 lines of the printed board to represent 1 actual line of the physical board
 draw_board_aux(_, Y, MaxY) :- 
     Y > MaxY,
     !.
@@ -288,7 +291,7 @@ draw_board_aux(Board, Y, MaxY) :-
     draw_board_aux(Board, Y1, MaxY).
 
 % draw_board_line(+Board, +Y)
-% Draws the line Y of the board, assuming each "line of the real board" is 2 lines of the printed board
+% Draws the line Y of the board, assuming each actual line of the physical board is represented by 2 lines of the printed board
 draw_board_line(Board, Y) :-
     CurrentY is Y // 2,
     CurrentY < 10,
@@ -430,6 +433,7 @@ draw_hexagon(draw(top, _), draw(startBottom, _)) :-
 draw_hexagon(_, draw(startBottom, _)) :-
     write(' __'),
     !.
+
 
 % ------------------------------------ %
 %         VARIABLE SIZED BOARDS        %
@@ -599,7 +603,7 @@ create_new_board(13) :-
     ])).
 
 
-% Board cant have more than 10 columns
+% The board can't have more than 10 columns
 create_new_board(15) :-
     clear_board,
     assert(board_size(10, 15)),

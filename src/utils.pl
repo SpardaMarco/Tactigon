@@ -6,12 +6,12 @@ clear_screen:-
     write('\33\[2J').
 
 % read_number_input(-Number)
-% Reads a number from user input, unifying it with Number. Skips entire line if input is invalid
+% Reads a number from user input, unifying it with Number. Skips the entire line if the input is invalid
 read_number_input(X):-
     read_number_input_aux(X, 0).
 
 % read_number_input_aux(-Number, +Accumulator)
-% Reads a number from user input, unifying it with Number. Skips entire line if input is invalid
+% Reads a number from user input, unifying it with Number. Skips the entire line if the input is invalid
 read_number_input_aux(X, ACC):- 
     peek_code(C),
     between(48, 57, C), % 48 is ASCII code for 0 and 57 is ASCII code for 9
@@ -29,7 +29,7 @@ read_number_input_aux(_, _) :-
     fail.
 
 % get_option(+MinValue, +MaxValue, +Objective, +Error, -Option)
-% Given an objective, unifies Option with the value given by user input between Min and Max
+% Given an objective, unifies Option with the value given by user input (between Min and Max)
 get_option(MinValue, MaxValue, Objective, _, Option):-
     format('~a between ~d and ~d: ', [Objective, MinValue, MaxValue]),
     read_number_input(Option),
@@ -42,12 +42,12 @@ get_option(MinValue, MaxValue, Objective, Error, Option):-
 
 
 % read_number_del(-Number, +Delimiter)
-% Reads a number from user input, unifying it with Number till Delimiter. Skips entire line if input is invalid
+% Reads a number from user input, unifying it with Number until Delimiter. Skips the entire line if the input is invalid
 read_number_del(X, Del):-
     read_number_del_aux(X, Del, 0).
 
 % read_number_del_aux(-Number, +Delimiter, +Accumulator)
-% Reads a number from user input, unifying it with Number till Delimiter. Skips entire line if input is invalid
+% Reads a number from user input, unifying it with Number until Delimiter. Skips the entire line if the input is invalid
 read_number_del_aux(X, Del, ACC):- 
     peek_code(C),
     between(48, 57, C), % 48 is ASCII code for 0 and 57 is ASCII code for 9
