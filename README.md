@@ -514,6 +514,83 @@ game_over([Board, Player], Player) :-
 
 ### Game State Evaluation
 
+The **value/3** predicate is responsible for evaluating the current game state for the evaluated player. 
+```prolog
+% value(+GameState, +EvaluatedPlayer, -Value)
+% Evaluate the value of the game state for the EvaluatedPlayer
+value([Board, Player], EvaluatedPlayer, Value) :-
+    evaluate_advantage([Board, _], EvaluatedPlayer, Advantage), % Get the advantage of the game state for the EvaluatedPlayer
+    closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, DistanceToOpponentPentagon), % Get the distance between the EvaluatedPlayer's closest piece and the opponent's pentagon
+    other_player(EvaluatedPlayer, Opponent), 
+    closest_to_opponent_pentagon([Board, _], Opponent, DistanceToPlayerPentagon), % Get the distance between the opponent's closest piece and the EvaluatedPlayer's pentagon
+    Distance is DistanceToPlayerPentagon - DistanceToOpponentPentagon,
+    wins_game([Board, Player], EvaluatedPlayer, Wins), % Check if the EvaluatedPlayer wins the game
+    Value is Wins + Advantage + Distance.
+```
+*logic.pl*
 
+At first, the **value/3** predicate will call the **evaluate_advantage/3** predicate to determine the advantage of the game state for the evaluated player and return it. This predicate will check the number of pieces of the evaluated player and the number of pieces of the opponent player. The advantage of the evaluated player is equal to the difference between the number of pieces of the evaluated player and the number of pieces of the opponent player. If the opponent player has more pieces than the evaluated player, the advantage will be negative, indicating that the move could not be very favorable for the evaluated player. If both players have the same number of pieces, the advantage is equal to 0:
+```prolog
+% evaluate_advantage(+GameState, +EvaluatedPlayer, -Advantage)
+% Evaluate the advantage of the game state for the EvaluatedPlayer
+evaluate_advantage([Board, _], EvaluatedPlayer, Advantage) :-
+    count_player_pieces([Board, _], EvaluatedPlayer, NumPlayerPieces), % Count the number of pieces for the EvaluatedPlayer
+    other_player(EvaluatedPlayer, Opponent), 
+    count_player_pieces([Board, _], Opponent, NumOpponentPieces), % Count the number of pieces for the opponent
+    Advantage is NumPlayerPieces - NumOpponentPieces.
+```
+*logic.pl*
+
+After determining the advantage, the **value/3** predicate will call the **closest_to_opponent_pentagon/3** predicate to determine the distance between the evaluated player's closest piece and the opponent's pentagon. This predicate will check all the pieces of the evaluated player and return the distance between the closest piece and the opponent's pentagon. If the evaluated player has no pieces or if the opponent has no pentagon, the distance is equal to 0:
+```prolog
+% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
+% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
+closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
+    other_player(EvaluatedPlayer, Opponent),
+    \+ member(position(Opponent-pentagon-_, _), Board). 
+
+closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
+    \+ member(position(EvaluatedPlayer-_-_, _), Board).
+
+closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, MinDistance) :-
+    findall(Position, (member(position(EvaluatedPlayer-_-_, Position), Board)), PlayerPiecesPositions), % Get all the pieces of the player
+    other_player(EvaluatedPlayer, Opponent),
+    member(position(Opponent-pentagon-_, OpponentPiecePosition), Board), 
+    setof(Distance, Position^PlayerPiecesPositions^OpponentPiecePosition^(member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]).
+```
+*logic.pl*
+
+After calling the **closest_to_opponent_pentagon/3** predicate for the evaluated player, the **value/3** predicate will also call this predicate for the opponent player, in order to determine the distance between the opponent's closest piece and the evaluated player's pentagon. We want the evaluated player's pentagon to be as far as possible from the opponent's closest piece, and the evaluated player's closest piece to be as close as possible to the opponent's pentagon. Therefore, the distance between the evaluated player's closest piece to the opponent's pentagon is subtracted from the distance between the opponent's closest piece to the evaluated player's pentagon. This difference is saved saved as *Distance* and is used afterwards to help determining the value of the game state for the evaluated player:
+
+```prolog
+    %(...)
+    closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, DistanceToOpponentPentagon), % Get the distance between the EvaluatedPlayer's closest piece and the opponent's pentagon
+    other_player(EvaluatedPlayer, Opponent), 
+    closest_to_opponent_pentagon([Board, _], Opponent, DistanceToPlayerPentagon), % Get the distance between the opponent's closest piece and the EvaluatedPlayer's pentagon
+    Distance is DistanceToPlayerPentagon - DistanceToOpponentPentagon
+    %(...)
+```
+*logic.pl* (in **value/3** predicate)
+
+At last, the predicate **value/3** will call the **wins_game/3** predicate to check if the evaluated player wins the game in the current game state. This predicate will call the **game_over/2** predicate to check if the game is over and if the evaluated player is the winner. If so, the predicate will return a value of **1000**. If the game is not over yet, the predicate will return a value of **0**:
+```prolog
+% wins_game(+GameState, +EvaluatedPlayer, -Value)
+% Checks if the EvaluatedPlayer wins the game and returns the value of the game state
+wins_game([Board, Player], EvaluatedPlayer, Value) :-
+    game_over([Board, Player], EvaluatedPlayer), % Check if the EvaluatedPlayer wins the game
+    Value is 1000,
+    !.
+
+wins_game([_, _], _, 0).
+```
+*logic.pl*
+
+Finally, the **value/3** predicate will sum the advantage, the distance and the result of the **wins_game/3** predicate and return it as the value of the game state for the evaluated player:
+```prolog
+    %(...)
+    Value is Wins + Advantage + Distance.
+    %(...)
+```
+*logic.pl* (in **value/3** predicate)
 
 ### Computer Plays
