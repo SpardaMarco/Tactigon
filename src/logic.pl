@@ -177,6 +177,8 @@ count_player_pieces([Board, _], EvaluatedPlayer, NumPieces) :-
     findall(_, (member(position(EvaluatedPlayer-_-_, _), Board)), PlayerPieces),
     length(PlayerPieces, NumPieces).
 
+% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
+% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
     other_player(EvaluatedPlayer, Opponent),
     \+ member(position(Opponent-pentagon-_, _), Board).
@@ -184,8 +186,6 @@ closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
     \+ member(position(EvaluatedPlayer-_-_, _), Board).
 
-% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
-% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, MinDistance) :-
     findall(Position, (member(position(EvaluatedPlayer-_-_, Position), Board)), PlayerPiecesPositions), % Get all the pieces of the player
     other_player(EvaluatedPlayer, Opponent),

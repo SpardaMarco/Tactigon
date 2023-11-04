@@ -86,6 +86,8 @@ ask_difficulty(P) :-
     write('2 - Level 2 Bot (Greedy)'), nl,
     write('3 - Human'), nl.
 
+% ask_rules/0
+% Displays the additional rules options
 ask_rules :-
     write('Additional Rules:'), nl,
     write('1 - Square pieces can jump over other pieces, except for opposing squares. A "jumped" tile still counts towards the piece\'s move limit.'), nl,
