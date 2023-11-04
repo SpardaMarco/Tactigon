@@ -3,6 +3,21 @@
 :- ensure_loaded('board.pl').
 :- ensure_loaded('settings.pl').
 
+% initial_state(+Size, -GameState)
+% Returns the initial game state for a given board size
+initial_state(Size, [Board, Player]) :-
+    board_size(_, Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
+
+initial_state(Size, [Board, Player]) :-
+    create_new_board(Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
 
 % ----------------------------- %
 %         MOVEMENT LOGIC        %
@@ -114,7 +129,7 @@ choose_move([Board, Player], Player, 1, Move) :-
 % Chooses a move for the difficulty level 2 (greedy) bot
 choose_move([Board, Player], Player, 2, Move) :-
     valid_moves([Board, Player], Player, Moves), % Get all valid moves for the player
-    findall(Value-CurrentMove, (member(CurrentMove, Moves), move([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
+    findall(Value-CurrentMove, (member(CurrentMove, Moves), move_aux([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
     sort(ValuesMoves, SortedValuesMoves), % Sort the list of values and moves
     reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
     ReversedValuesMoves = [MaxValue-_|_],
@@ -162,6 +177,8 @@ count_player_pieces([Board, _], EvaluatedPlayer, NumPieces) :-
     findall(_, (member(position(EvaluatedPlayer-_-_, _), Board)), PlayerPieces),
     length(PlayerPieces, NumPieces).
 
+% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
+% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
     other_player(EvaluatedPlayer, Opponent),
     \+ member(position(Opponent-pentagon-_, _), Board).
@@ -169,14 +186,11 @@ closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, 0) :-
     \+ member(position(EvaluatedPlayer-_-_, _), Board).
 
-% closest_to_opponent_pentagon(+GameState, +EvaluatedPlayer, -Distance)
-% Unifies Distance with the distance between the closest piece of the EvaluatedPlayer and his opponent's pentagon
 closest_to_opponent_pentagon([Board, _], EvaluatedPlayer, MinDistance) :-
     findall(Position, (member(position(EvaluatedPlayer-_-_, Position), Board)), PlayerPiecesPositions), % Get all the pieces of the player
     other_player(EvaluatedPlayer, Opponent),
     member(position(Opponent-pentagon-_, OpponentPiecePosition), Board), 
     setof(Distance, Position^PlayerPiecesPositions^OpponentPiecePosition^(member(Position, PlayerPiecesPositions), distance(Position, OpponentPiecePosition, Distance)), [MinDistance|_]). % Get the distance between the player's piece and the opponent's pentagon
-
 
 % ------------------------------ %
 %         GAME OVER LOGIC        %

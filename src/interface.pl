@@ -33,8 +33,7 @@ display_menu :-
 
 % display_game(+GameState)
 % Displays the game and all its elements
-display_game(GameState) :-
-    GameState = [Board, _],
+display_game([Board, _]) :-
     clear_screen,
     nl,
     draw_board(Board),
@@ -49,7 +48,28 @@ display_legend :-
     write('CT - Cian Triangle'), write('  '), write('RT - Red Triangle'), nl,
     write('CS - Cian Square'), write('    '), write('RS - Red Square'), nl,
     write('CP - Cian Pentagon'), write('  '), write('RP - Red Pentagon'), nl,
-    write('Gold Tiles (GT):'), write(' '), write('(1, 5)'), write(', '), write('(5, 5)'), nl.
+    display_gold_tiles.
+
+% display_gold_tiles/0
+% Displays the gold tiles positions in the board
+display_gold_tiles :-
+    findall(X-Y, gold_tile(X, Y), GoldTiles),
+    write('Gold Tiles (GT):'), write(' '), 
+    display_gold_tiles(GoldTiles),
+    nl.
+
+% display_gold_tiles(+GoldTiles)
+% Displays the gold tiles positions in the board
+display_gold_tiles([]) :-
+    nl.
+% If there is only 1 tile, no need to display the comma
+display_gold_tiles([X-Y]) :-
+    format('(~d, ~d)', [X, Y]),
+    !.
+display_gold_tiles([X-Y|T]) :-
+    format('(~d, ~d)', [X, Y]),
+    write(', '),
+    display_gold_tiles(T).    
 
 % display_winner(+Winner)
 % Displays the winner of the game
@@ -66,6 +86,8 @@ ask_difficulty(P) :-
     write('2 - Level 2 Bot (Greedy)'), nl,
     write('3 - Human'), nl.
 
+% ask_rules/0
+% Displays the additional rules options
 ask_rules :-
     write('Additional Rules:'), nl,
     write('1 - Square pieces can jump over other pieces, except for opposing squares. A "jumped" tile still counts towards the piece\'s move limit.'), nl,
@@ -109,6 +131,8 @@ ask_move([_, Player], OX-OY-DX-DY) :-
     ask_move_input(Player, 'Player ~w, please where to move the piece (X-Y): ', DX-DY),
     !.
 
+% ask_move_input(+Player, +Context, -X-Y)
+% Asks the player for a move
 ask_move_input(Player, Context, X-Y) :-
     format(Context, [Player]),
     get_move_input(X-Y),
@@ -118,9 +142,20 @@ ask_move_input(Player, Context, X-Y) :-
     write('Invalid input!'), nl,
     ask_move_input(Player, Context, X-Y).
 
+% ask_board_size/0
+% Asks the user for the board size
+ask_board_size :-
+    write('Board Size:'), nl,
+    write('1 - 11 lines, 7 columns (Default board size)'), nl,
+    write('2 - 13 lines, 9 columns'), nl,
+    write('3 - 15 lines, 11 columns'), nl.
+
 % change_settings/0
 % Asks the user for new settings
 change_settings :-
+    ask_board_size,
+    get_option(1, 3, 'Select an option', 'option', BoardSize),
+    process_board_size_option(BoardSize),
     ask_difficulty(cian),
     get_option(1, 3, 'Select an option', 'option', CianDifficulty),
     process_difficulty_option(cian, CianDifficulty),
@@ -149,3 +184,14 @@ process_rules_option(NewRules) :-
 process_rules_option(NewRules) :-
     retract(rules(_)),
     assert(rules(NewRules)).
+
+% process_board_size_option(+NewBoardSize)
+% Processes the user input and changes the settings regarding the board size
+process_board_size_option(1) :-
+    create_new_board(11).
+
+process_board_size_option(2) :-
+    create_new_board(13).
+
+process_board_size_option(3) :-
+    create_new_board(15).
