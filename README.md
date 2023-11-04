@@ -776,7 +776,53 @@ Value is Wins + Advantage + Distance.
 
 ### Computer Plays
 
+When processing a turn in the game loop, if the current player is a computer player, the **process_turn/2** predicate will call the **choose_move/4** predicate:
+```prolog
+process_turn([Board, Player], [NewBoard, NewPlayer]) :-
+    difficulty(Player, Difficulty), % Computer player
+    !,
+    choose_move([Board, Player], Player, Difficulty, OX-OY-DX-DY), % Get a move from the computer
+    move_aux([Board, Player], OX-OY-DX-DY, [NewBoard, NewPlayer]),
+    !.
+```
+*main.pl*
 
+If the difficulty level of the computer player is **1** (the bot chooses a valid random move), the **choose_move/4** predicate will call the **valid_moves/3** predicate to get a list of all possible valid moves for the current computer player in the current game state. After that, the predicate **random_member/2** will choose a random move from the list of possible moves and return it:
+```prolog
+% choose_move(+GameState, +Player, +Level, -Move).
+% Chooses a move for the difficulty level 1 (random) bot
+choose_move([Board, Player], Player, 1, Move) :-
+    valid_moves([Board, Player], Player, Moves), % Get all the valid moves
+    random_member(Move, Moves). % Choose a random move
+```
+*logic.pl*
+
+If the difficulty level of the computer player is **2** (the bot chooses the best valid move at that time), the **choose_move/4** predicate will also start by calling the **valid_moves/3** predicate to get a list of all possible valid moves for the current computer player in the current game state. After that, the predicate **findall/3** will be used to get a list of all possible moves and the values of the corresponding game states. This list will be sorted in descending order, using the **sort/2** predicate followed by the **reverse/2** predicate, and the move with the highest value will be selected using the **select_value_move/3** predicate:
+
+```prolog
+% choose_move(+GameState, +Player, +Level, -Move).
+% Chooses a move for the difficulty level 2 (greedy) bot
+choose_move([Board, Player], Player, 2, Move) :-
+    valid_moves([Board, Player], Player, Moves), % Get all valid moves for the player
+    findall(Value-CurrentMove, (member(CurrentMove, Moves), move_aux([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
+    sort(ValuesMoves, SortedValuesMoves), 
+    reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
+    ReversedValuesMoves = [MaxValue-_|_], % Get the highest value
+    select_value_move(ReversedValuesMoves, MaxValue, Move), % Select a move with the highest value
+    !.
+```
+*logic.pl*
+
+As more than one move can have the highest value, the **select_value_move/3** predicate is used to select a move with the highest value possible for the current computer player in the current game state. This predicate will get a list with all the moves with the highest value and choose a random move from that list, returning it:
+```prolog
+% select_value_move(+ValuesMoves, +Value, -Move)
+% Selects a random move with the given value
+select_value_move(ValuesMoves, Value, Move) :- 
+    findall(M, (member(Value-M, ValuesMoves)), Moves), % Get all the moves with the given value
+    random_member(Move, Moves), % Choose a random move with the given value
+    !.
+```
+*logic.pl*
 
 ## Conclusions
 
