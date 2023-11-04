@@ -147,6 +147,144 @@ board(final,
 *board.pl*
 
 ### Game State Visualization
+In the main menu, the user can choose to start a new game, change settings or exit the game. 
+```prolog
+% menu/0
+% Displays the menu and processes the user input. 1 to start the game, 2 to change settings and 3 to exit
+menu :-
+    display_menu,
+    get_option(1, 3, 'Select an option', 'option', Option),
+    processMenuOption(Option).
+
+% processMenuOption(+Option)
+% Processes the user input
+processMenuOption(1) :-
+    board_size(_, Size),
+    initial_state(Size, [Board, Player]),
+    game_loop([Board, Player]),
+    !.
+
+processMenuOption(2) :-
+    change_settings,
+    !,
+    menu.
+
+processMenuOption(3) :-
+    clear_screen,
+    !.
+```
+The input is validated using the **get_option/5** predicate, which asks the user for an option between two values and reads the input. If the input is valid, the predicate returns the input. If not, the predicate asks the user for a new input. The request and the error messages are defined by the *Objective* and *Error* elements, respectively:
+```prolog
+% get_option(+MinValue, +MaxValue, +Objective, +Error, -Option)
+% Given an objective, unifies Option with the value given by user input between Min and Max
+get_option(MinValue, MaxValue, Objective, _, Option):-
+    format('~a between ~d and ~d: ', [Objective, MinValue, MaxValue]),
+    read_number_input(Option),
+    between(MinValue, MaxValue, Option), 
+    !.
+
+get_option(MinValue, MaxValue, Objective, Error, Option):-
+    format('Invalid ~a.~n', [Error]),
+    get_option(MinValue, MaxValue, Objective, Error, Option).
+```
+
+If the user chooses to start a new game, the game will start with the defined settings. The predicate **initial_state/2** is responsible for creating the initial game state, based on the board size given.
+```prolog
+% initial_state(+Size, -GameState)
+% Returns the initial game state for a given board size
+initial_state(Size, [Board, Player]) :-
+    board_size(_, Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
+
+initial_state(Size, [Board, Player]) :-
+    create_new_board(Size),
+    !,
+    board(initial, Board),
+    findall(P, player(P), Players),
+    random_member(Player, Players).
+```
+*logic.pl*
+
+This predicate verifies if the board size is the current board size defined in the settings. If so, the initial game state is created using the initial board. If not, a new board is created using the **create_new_board/1** predicate and the initial game state is created using the new board. E.G.:
+
+```prolog
+% create_new_board(+Size)
+% Creates a new board with Size lines, with a default number of columns for that size
+create_new_board(11) :-
+    clear_board,
+    assert(board_size(7, 11)),
+    assert_list([
+        line(0, 2, 4),
+        line(1, 1, 5),
+        line(2, 1, 5),
+        line(3, 1, 5),
+        line(4, 0, 6),
+        line(5, 0, 6),
+        line(6, 1, 5),
+        line(7, 1, 5),	
+        line(8, 1, 5),
+        line(9, 1, 5),
+        line(10, 3, 3)
+    ]),
+    assert_list([
+        gold_tile(1, 5),
+        gold_tile(5, 5)
+    ]),
+    assert(board(initial, 
+    [
+        ...
+    ])),
+    assert(board(intermediate, 
+    [
+        ...
+    ])),
+    assert(board(final, 
+    [
+        ...
+    ])).
+```
+*board.pl*
+
+During the game, the move input is validated using the **ask_move/2** predicate, which asks the user for a two pairs of coordinates and reads the input. Each pair of coordinates is validated using ... 
+```prolog
+
+
+If the user chooses to change settings, the user is asked to select:
+1. Board Size (11 lines, 7 columns; 13 lines, 9 columns; 15 lines, 11 columns);
+2. Cian Difficulty (Bot (Random), Bot (Greedy), Human);
+3. Red Difficulty (Bot (Random), Bot (Greedy), Human);
+4. Advanced Rules (Advanced Rule 1, Advanced Rule 2, Both Advanced Rules, None).
+
+```terminal
+Select an option between 1 and 3: 2
+Board Size:
+1 - 11 lines, 7 columns (Default board size)
+2 - 13 lines, 9 columns
+3 - 15 lines, 11 columns
+Select an option between 1 and 3: 1         <--- 1.
+Player cian is:
+1 - Level 1 Bot (Random)
+2 - Level 2 Bot (Greedy)
+3 - Human
+Select an option between 1 and 3: 3         <--- 2.
+Player red is:
+1 - Level 1 Bot (Random)
+2 - Level 2 Bot (Greedy)
+3 - Human
+Select an option between 1 and 3: 3         <--- 3.
+Advanced Rules:
+1 - Square pieces can jump over other pieces, except for opposing squares. A "jumped" tile still counts towards the piece's move limit.
+2 - Pieces that start a turn on a gold tile can move an additional space on that turn.
+Options:
+1 - Advanced Rule 1
+2 - Advanced Rule 2
+3 - Both Advanced Rules
+4 - None
+Select an option between 1 and 4: 4         <--- 4.
+```
 
 ### Move Validation and Execution
 
