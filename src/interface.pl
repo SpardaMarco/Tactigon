@@ -48,7 +48,28 @@ display_legend :-
     write('CT - Cian Triangle'), write('  '), write('RT - Red Triangle'), nl,
     write('CS - Cian Square'), write('    '), write('RS - Red Square'), nl,
     write('CP - Cian Pentagon'), write('  '), write('RP - Red Pentagon'), nl,
-    write('Gold Tiles (GT):'), write(' '), write('(1, 5)'), write(', '), write('(5, 5)'), nl.
+    display_gold_tiles.
+
+% display_gold_tiles/0
+% Displays the gold tiles positions in the board
+display_gold_tiles :-
+    findall(X-Y, gold_tile(X, Y), GoldTiles),
+    write('Gold Tiles (GT):'), write(' '), 
+    display_gold_tiles(GoldTiles),
+    nl.
+
+% display_gold_tiles(+GoldTiles)
+% Displays the gold tiles positions in the board
+display_gold_tiles([]) :-
+    nl.
+% If there is only 1 tile, no need to display the comma
+display_gold_tiles([X-Y]) :-
+    format('(~d, ~d)', [X, Y]),
+    !.
+display_gold_tiles([X-Y|T]) :-
+    format('(~d, ~d)', [X, Y]),
+    write(', '),
+    display_gold_tiles(T).    
 
 % display_winner(+Winner)
 % Displays the winner of the game
