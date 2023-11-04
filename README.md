@@ -189,6 +189,8 @@ processMenuOption(3) :-
 
 ![Menu](img/menu.png)
 
+Figure 5 - Menu
+
 The input is validated using the **get_option/5** predicate, which asks the user for an option between two values and reads the input. If the input is valid, the predicate returns the input. If not, the predicate asks the user for a new input. The request and the error messages are defined by the *Objective* and *Error* elements, respectively:
 ```prolog
 % get_option(+MinValue, +MaxValue, +Objective, +Error, -Option)
