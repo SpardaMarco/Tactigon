@@ -804,9 +804,8 @@ If the difficulty level of the computer player is **2** (the bot chooses the bes
 % Chooses a move for the difficulty level 2 (greedy) bot
 choose_move([Board, Player], Player, 2, Move) :-
     valid_moves([Board, Player], Player, Moves), % Get all valid moves for the player
-    findall(Value-CurrentMove, (member(CurrentMove, Moves), move_aux([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves), % Get the value of the game state after each move
-    sort(ValuesMoves, SortedValuesMoves), 
-    reverse(SortedValuesMoves, ReversedValuesMoves), % Get the move with the highest value
+    setof(Value-CurrentMove, [Board, Player]^[NewBoard, NewPlayer]^(member(CurrentMove, Moves), move_aux([Board, Player], CurrentMove, [NewBoard, NewPlayer]), value([NewBoard, NewPlayer], Player, Value)), ValuesMoves),
+    reverse(ValuesMoves, ReversedValuesMoves), % Get the move with the highest value
     ReversedValuesMoves = [MaxValue-_|_], % Get the highest value
     select_value_move(ReversedValuesMoves, MaxValue, Move), % Select a move with the highest value
     !.
