@@ -797,7 +797,7 @@ choose_move([Board, Player], Player, 1, Move) :-
 ```
 *logic.pl*
 
-If the difficulty level of the computer player is **2** (the bot chooses the best valid move at that time), the **choose_move/4** predicate will also start by calling the **valid_moves/3** predicate to get a list of all possible valid moves for the current computer player in the current game state. After that, the predicate **findall/3** will be used to get a list of all possible moves and the values of the corresponding game states. This list will be sorted in descending order, using the **sort/2** predicate followed by the **reverse/2** predicate, and the move with the highest value will be selected using the **select_value_move/3** predicate:
+If the difficulty level of the computer player is **2** (the bot chooses the best valid move at that time), the **choose_move/4** predicate will also start by calling the **valid_moves/3** predicate to get a list of all possible valid moves for the current computer player in the current game state. After that, the predicate **setof/3** will be used to get a list of all possible moves and the values of the corresponding game states, ordered by value. This list will be sorted in descending order, after the **reverse/2** predicate, and the move with the highest value will be selected using the **select_value_move/3** predicate:
 
 ```prolog
 % choose_move(+GameState, +Player, +Level, -Move).
