@@ -558,7 +558,7 @@ valid_move_for_piece([Board, Player], Piece, OX-OY-DX-DY) :-
     piece_info(Piece, _, Type),
     movement(Type, N),  % N is the maximum number of steps for this type of piece
     N1 is N + 1, % N1 is the maximum number of steps increases by 1 because of additional rule 2 when piece is on a gold tile
-    valid_move_dfs([Board, Player], N1, Piece, OX-OY-DX-DY, OX-OY).
+    valid_move_dfs([Board, Player], N1, Piece, DX-DY, OX-OY).
 ```
 *logic.pl*
 
