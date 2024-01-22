@@ -3,6 +3,7 @@
 **[Tactigon Board Game](https://tactigongame.com/)**
 ## Group Description
 Group Name: **Tactigon_4**
+Grade: 19,73
 
 Group Members:
 - **[Marco André Pereira da Costa](https://github.com/SpardaMarco)** - up202108821 - 50% contribution
